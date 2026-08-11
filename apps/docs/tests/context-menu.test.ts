@@ -34,13 +34,18 @@ function select(editor: Editor, from: number, to: number) {
   )
 }
 
-function render(element: React.ReactElement): { container: HTMLElement; unmount: () => void } {
+function render(element: React.ReactElement): {
+  container: HTMLElement
+  rerender: (next: React.ReactElement) => void
+  unmount: () => void
+} {
   const container = document.createElement('div')
   document.body.appendChild(container)
   const root = createRoot(container)
   act(() => root.render(element))
   return {
     container,
+    rerender: (next) => act(() => root.render(next)),
     unmount: () => {
       act(() => root.unmount())
       container.remove()
@@ -147,12 +152,37 @@ describe('EditorContextMenu', () => {
     act(() => summarize!.click())
 
     const instruction = String(onAiPreset.mock.calls[0][0])
-    expect(instruction).toContain('总结这篇文档的主要内容和要点')
+    expect(instruction).toContain('Summarize only the user-highlighted text')
     expect(instruction).toContain('<selected_text_json>"EVs"</selected_text_json>')
     expect(editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to)).toBe(
       'EVs',
     )
     unmount()
+    editor.destroy()
+  })
+
+  it('refreshes AI context when a second right-click repositions an open menu', () => {
+    const editor = createEditor()
+    select(editor, 1, 4)
+    const onAiPreset = vi.fn()
+    const props = menuProps(editor, { onAiPreset })
+    const rendered = render(createElement(EditorContextMenu, props))
+
+    select(editor, 5, 11)
+    rendered.rerender(
+      createElement(EditorContextMenu, { ...props, menu: { x: 30, y: 30 } }),
+    )
+    const byLabel = (label: string) =>
+      [...rendered.container.querySelectorAll<HTMLButtonElement>('.ctx-item')].find(
+        (button) => button.querySelector('.ctx-label')?.textContent === label,
+      )
+    act(() => byLabel('Fynix AI')!.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })))
+    act(() => byLabel('AI 总结')!.click())
+
+    expect(String(onAiPreset.mock.calls[0][0])).toContain(
+      '<selected_text_json>"market"</selected_text_json>',
+    )
+    rendered.unmount()
     editor.destroy()
   })
 
