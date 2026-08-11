@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createI18n, htmlLang, type Lang, type Params } from '@fynixoffice/i18n'
 import { strings } from './strings'
@@ -14,7 +14,7 @@ const AI_LANG_DIRECTIVES: Record<Lang, string> = {
   en: "\n\nReply in the same language as the user's message; if it cannot be determined, reply in English.",
   ja: '\n\nユーザーのメッセージと同じ言語で返信してください。言語を判別できない場合は日本語で返信してください。',
   ko: '\n\n사용자 메시지와 같은 언어로 답변하세요. 언어를 판단할 수 없으면 한국어로 답변하세요.',
-  fr: "\n\nRéponds dans la même langue que le message de l'utilisateur ; si elle ne peut pas être déterminée, réponds en français.",
+  fr: "\n\nRépondez dans la même langue que le message de l'utilisateur ; si elle ne peut pas être déterminée, répondez en français.",
   de: '\n\nAntworte in derselben Sprache wie die Nachricht des Benutzers; lässt sie sich nicht bestimmen, antworte auf Deutsch.',
   es: '\n\nResponde en el mismo idioma que el mensaje del usuario; si no se puede determinar, responde en español.',
   th: '\n\nตอบเป็นภาษาเดียวกับข้อความของผู้ใช้ หากไม่สามารถระบุได้ ให้ตอบเป็นภาษาไทย',
@@ -46,8 +46,10 @@ export function t(key: StringKey, params?: Params): string {
 
 export function LocaleProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(initial)
-  moduleLang = lang
-  document.documentElement.lang = htmlLang(lang)
+  useLayoutEffect(() => {
+    moduleLang = lang
+    document.documentElement.lang = htmlLang(lang)
+  }, [lang])
   useEffect(
     () =>
       window.pdfApi.onLanguageChanged((next) => {

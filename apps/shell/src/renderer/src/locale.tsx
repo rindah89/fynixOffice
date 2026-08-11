@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useLayoutEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createI18n, htmlLang, type Lang, type Params } from '@fynixoffice/i18n'
 import { strings } from './strings'
@@ -17,7 +17,9 @@ const LocaleContext = createContext<LocaleValue>({ lang: 'zh', setLang: () => {}
 
 export function LocaleProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(initial)
-  document.documentElement.lang = htmlLang(lang)
+  useLayoutEffect(() => {
+    document.documentElement.lang = htmlLang(lang)
+  }, [lang])
   const value = useMemo<LocaleValue>(
     () => ({
       lang,

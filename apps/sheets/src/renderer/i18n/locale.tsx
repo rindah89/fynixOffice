@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createI18n, htmlLang, type Lang, type Params } from '@fynixoffice/i18n'
 import { strings } from './strings'
@@ -71,15 +71,11 @@ export const DATE_LOCALES: Record<Lang, string> = {
 const LocaleContext = createContext<Lang>('zh')
 
 export function LocaleProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>(() => {
-    // Non-React callers must use the requested language from the first render,
-    // not only after the first language-change event.
-    setModuleLang(initial)
-    return initial
-  })
-  useEffect(() => {
-    document.documentElement.lang = htmlLang(initial)
-  }, [initial])
+  const [lang, setLang] = useState<Lang>(initial)
+  useLayoutEffect(() => {
+    setModuleLang(lang)
+    document.documentElement.lang = htmlLang(lang)
+  }, [lang])
   useEffect(
     () =>
       window.desktopApi.onLanguageChanged((next) => {
