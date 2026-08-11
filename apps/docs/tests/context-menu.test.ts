@@ -203,6 +203,7 @@ describe('EditorContextMenu', () => {
 
     const instruction = String(onAiPreset.mock.calls[0][0])
     expect(instruction).toContain('must call replace_selection')
+    expect(instruction).toContain('from=5, to=11')
     expect(instruction).toContain('<selected_text_json>"market"</selected_text_json>')
     unmount()
     editor.destroy()

@@ -93,9 +93,11 @@ export const AGENT_TOOLS: AgentToolDef[] = [
           type: 'string',
           description: 'the exact highlighted text supplied in the user request; guards against stale selection',
         },
+        from: { type: 'integer', description: 'the exact selection start supplied in the user request' },
+        to: { type: 'integer', description: 'the exact selection end supplied in the user request' },
         replacementText: { type: 'string', description: 'plain-text replacement for the selection' },
       },
-      required: ['expectedText', 'replacementText'],
+      required: ['expectedText', 'from', 'to', 'replacementText'],
     },
   },
   {
@@ -531,8 +533,17 @@ function executeSyncTool(
     }
 
     case 'replace_selection': {
-      const { from, to, empty } = editor.state.selection
-      if (empty) return fail(t('aiSumReplaceContent'), 'no text is currently selected')
+      if (track) {
+        return fail(
+          t('aiSumReplaceContent'),
+          'selection rewrites are unavailable while Track Changes is enabled',
+        )
+      }
+      const from = Number(call.input.from)
+      const to = Number(call.input.to)
+      if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to <= from || to > editor.state.doc.content.size) {
+        return fail(t('aiSumReplaceContent'), 'the original highlighted range is no longer valid')
+      }
       const expectedText = String(call.input.expectedText ?? '')
       const actualText = editor.state.doc.textBetween(from, to, '\n', '')
       if (actualText !== expectedText) {
@@ -542,12 +553,8 @@ function executeSyncTool(
         )
       }
       const replacementText = String(call.input.replacementText ?? '')
-      const changed = editor
-        .chain()
-        .focus()
-        .insertContentAt({ from, to }, replacementText, { updateSelection: true })
-        .run()
-      if (!changed) return fail(t('aiSumReplaceContent'), 'the highlighted text could not be replaced')
+      editor.view.dispatch(editor.state.tr.insertText(replacementText, from, to))
+      editor.commands.focus()
       return {
         output: 'Replaced only the highlighted text. Text outside the selection was left unchanged.',
         mutated: true,

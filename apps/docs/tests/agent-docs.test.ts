@@ -144,13 +144,60 @@ describe('selection-scoped rewrites', () => {
       {
         id: 'rewrite-selection',
         name: 'replace_selection',
-        input: { expectedText: 'market', replacementText: 'sector' },
+        input: { expectedText: 'market', from: start, to: start + 6, replacementText: 'sector' },
       },
       NUM_IDS,
     )
 
     expect(result.mutated).toBe(true)
     expect(editor.state.doc.textContent).toBe('The sector outlook remains cautious.')
+  })
+
+  it('keeps the original occurrence pinned if the live selection moves', async () => {
+    const editor = createEditor([para('market and market')])
+    editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 12, 18)))
+
+    const result = await executeTool(
+      editor,
+      {
+        id: 'rewrite-pinned-selection',
+        name: 'replace_selection',
+        input: { expectedText: 'market', from: 1, to: 7, replacementText: 'sector' },
+      },
+      NUM_IDS,
+    )
+
+    expect(result.mutated).toBe(true)
+    expect(editor.state.doc.textContent).toBe('sector and market')
+  })
+
+  it('inserts replacement text literally and refuses rewrites with Track Changes enabled', async () => {
+    const editor = createEditor([para('x value')])
+    const literal = await executeTool(
+      editor,
+      {
+        id: 'rewrite-literal-selection',
+        name: 'replace_selection',
+        input: { expectedText: 'x', from: 1, to: 2, replacementText: 'a < b' },
+      },
+      NUM_IDS,
+    )
+    expect(literal.mutated).toBe(true)
+    expect(editor.state.doc.textContent).toBe('a < b value')
+
+    const tracked = await executeTool(
+      editor,
+      {
+        id: 'rewrite-tracked-selection',
+        name: 'replace_selection',
+        input: { expectedText: 'value', from: 7, to: 12, replacementText: 'result' },
+      },
+      NUM_IDS,
+      { author: 'Fynix AI' },
+    )
+    expect(tracked.mutated).toBe(false)
+    expect(tracked.isError).toBe(true)
+    expect(editor.state.doc.textContent).toBe('a < b value')
   })
 })
 
