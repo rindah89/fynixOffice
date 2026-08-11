@@ -78,6 +78,7 @@ describe('EditorContextMenu', () => {
     expect(byLabel('字体…').disabled).toBe(false)
     expect(byLabel('段落…').disabled).toBe(false)
     expect(byLabel('新建批注').disabled).toBe(true)
+    expect(byLabel('Fynix AI')).toBeUndefined()
     unmount()
     editor.destroy()
   })
@@ -120,6 +121,37 @@ describe('EditorContextMenu', () => {
     act(() => synonym.click())
     expect(onAiPreset).toHaveBeenCalledOnce()
     expect(String(onAiPreset.mock.calls[0][0])).toContain('EVs')
+    unmount()
+    editor.destroy()
+  })
+
+  it('offers Fynix AI tools for selected text and preserves that selection as context', () => {
+    const editor = createEditor()
+    select(editor, 1, 4)
+    const onAiPreset = vi.fn()
+    const { container, unmount } = render(
+      createElement(EditorContextMenu, menuProps(editor, { onAiPreset })),
+    )
+    const byLabel = (label: string) =>
+      [...container.querySelectorAll<HTMLButtonElement>('.ctx-item')].find(
+        (button) => button.querySelector('.ctx-label')?.textContent === label,
+      )
+    const fynixAi = byLabel('Fynix AI')
+    expect(fynixAi).toBeDefined()
+    act(() => fynixAi!.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })))
+    const summarize = byLabel('AI 总结')
+    expect(summarize).toBeDefined()
+
+    // Simulate focus moving away from the editor while the menu is open.
+    select(editor, 8, 8)
+    act(() => summarize!.click())
+
+    const instruction = String(onAiPreset.mock.calls[0][0])
+    expect(instruction).toContain('总结这篇文档的主要内容和要点')
+    expect(instruction).toContain('<selected_text_json>"EVs"</selected_text_json>')
+    expect(editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to)).toBe(
+      'EVs',
+    )
     unmount()
     editor.destroy()
   })
