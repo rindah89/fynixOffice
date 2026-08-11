@@ -113,7 +113,7 @@ export function EditorContextMenu({
     action()
   }
 
-  const runAi = (action: 'summarize' | 'polish' | 'format') =>
+  const runAi = (action: 'summarize' | 'rewrite' | 'polish' | 'format') =>
     run(() => {
       editor
         .chain()
@@ -123,6 +123,8 @@ export function EditorContextMenu({
       const instruction = {
         summarize:
           'Summarize only the user-highlighted text. Return a concise summary without changing the document.',
+        rewrite:
+          'Rewrite the user-highlighted section while preserving its meaning. Replace only the highlighted section and leave all surrounding content unchanged.',
         polish:
           'Polish only the user-highlighted text for clarity and fluency. Do not edit text outside the highlighted range.',
         format:
@@ -272,6 +274,7 @@ export function EditorContextMenu({
           {submenu === 'fynix-ai' && (
             <div className="ctx-submenu">
               {item(t('aiSummarizeBtn'), { onClick: runAi('summarize'), ai: true })}
+              {item(t('aiRewriteBtn'), { onClick: runAi('rewrite'), ai: true })}
               {item(t('aiPolishBtn'), { onClick: runAi('polish'), ai: true })}
               {item(t('aiTidyBtn'), { onClick: runAi('format'), ai: true })}
             </div>

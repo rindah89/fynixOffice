@@ -146,6 +146,7 @@ describe('EditorContextMenu', () => {
     act(() => fynixAi!.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })))
     const summarize = byLabel('AI 总结')
     expect(summarize).toBeDefined()
+    expect(byLabel('AI 重写')).toBeDefined()
 
     // Simulate focus moving away from the editor while the menu is open.
     select(editor, 8, 8)
@@ -183,6 +184,27 @@ describe('EditorContextMenu', () => {
       '<selected_text_json>"market"</selected_text_json>',
     )
     rendered.unmount()
+    editor.destroy()
+  })
+
+  it('routes Rewrite through the highlighted section only', () => {
+    const editor = createEditor()
+    select(editor, 5, 11)
+    const onAiPreset = vi.fn()
+    const { container, unmount } = render(
+      createElement(EditorContextMenu, menuProps(editor, { onAiPreset })),
+    )
+    const byLabel = (label: string) =>
+      [...container.querySelectorAll<HTMLButtonElement>('.ctx-item')].find(
+        (button) => button.querySelector('.ctx-label')?.textContent === label,
+      )
+    act(() => byLabel('Fynix AI')!.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })))
+    act(() => byLabel('AI 重写')!.click())
+
+    const instruction = String(onAiPreset.mock.calls[0][0])
+    expect(instruction).toContain('Replace only the highlighted section')
+    expect(instruction).toContain('<selected_text_json>"market"</selected_text_json>')
+    unmount()
     editor.destroy()
   })
 
