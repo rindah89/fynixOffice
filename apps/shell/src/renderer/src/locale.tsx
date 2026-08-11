@@ -17,6 +17,7 @@ const LocaleContext = createContext<LocaleValue>({ lang: 'zh', setLang: () => {}
 
 export function LocaleProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(initial)
+  document.documentElement.lang = htmlLang(lang)
   const value = useMemo<LocaleValue>(
     () => ({
       lang,

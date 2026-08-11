@@ -72,6 +72,10 @@ const LocaleContext = createContext<Lang>('zh')
 
 export function LocaleProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(initial)
+  // Keep non-React translators and the document language correct from the
+  // first render, not only after a later language-change event.
+  moduleLang = lang
+  document.documentElement.lang = htmlLang(lang)
   useEffect(
     () =>
       window.desktop.onLanguageChanged((next) => {

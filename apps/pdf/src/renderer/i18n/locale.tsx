@@ -47,6 +47,7 @@ export function t(key: StringKey, params?: Params): string {
 export function LocaleProvider({ initial, children }: { initial: Lang; children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(initial)
   moduleLang = lang
+  document.documentElement.lang = htmlLang(lang)
   useEffect(
     () =>
       window.pdfApi.onLanguageChanged((next) => {
