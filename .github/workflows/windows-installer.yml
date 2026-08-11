@@ -1,0 +1,38 @@
+name: Windows installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - run: npm ci
+      - run: npm run notices
+      - run: npm run build:all
+      - name: Prepare Windows sidecar path
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force apps/sheets/native/xlsx-engine/target/x86_64-pc-windows-gnu/release
+          Copy-Item apps/sheets/native/xlsx-engine/target/release/xlsx-sidecar.exe apps/sheets/native/xlsx-engine/target/x86_64-pc-windows-gnu/release/xlsx-sidecar.exe
+      - name: Package NSIS installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run dist:win -w @fynixoffice/shell
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fynixOffice-windows-x64
+          path: apps/shell/release/*.exe
+          if-no-files-found: error
+          retention-days: 7
