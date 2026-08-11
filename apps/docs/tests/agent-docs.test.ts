@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { Editor } from '@tiptap/core'
+import { TextSelection } from '@tiptap/pm/state'
 import { AgentLoop, type AgentStreamCallbacks, type AgentTransport } from '@fynixoffice/agent-core'
 import { editorExtensions } from '../src/renderer/editor/extensions'
 import { createDocsSkill } from '../src/renderer/ai/docs-skill'
@@ -127,6 +128,29 @@ describe('word-count stats (answer-style requests)', () => {
     expect(JSON.stringify(editor.getJSON())).toBe(before)
     // The context made it into the user message sent to the model
     expect((loop.messages[0] as { text: string }).text).toContain('Full-text stats')
+  })
+})
+
+describe('selection-scoped rewrites', () => {
+  it('replaces only the exact highlighted text and preserves its surroundings', async () => {
+    const editor = createEditor([para('The market outlook remains cautious.')])
+    const start = editor.state.doc.textContent.indexOf('market') + 1
+    editor.view.dispatch(
+      editor.state.tr.setSelection(TextSelection.create(editor.state.doc, start, start + 6)),
+    )
+
+    const result = await executeTool(
+      editor,
+      {
+        id: 'rewrite-selection',
+        name: 'replace_selection',
+        input: { expectedText: 'market', replacementText: 'sector' },
+      },
+      NUM_IDS,
+    )
+
+    expect(result.mutated).toBe(true)
+    expect(editor.state.doc.textContent).toBe('The sector outlook remains cautious.')
   })
 })
 

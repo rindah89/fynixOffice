@@ -124,7 +124,7 @@ export function EditorContextMenu({
         summarize:
           'Summarize only the user-highlighted text. Return a concise summary without changing the document.',
         rewrite:
-          'Rewrite the user-highlighted section while preserving its meaning. Replace only the highlighted section and leave all surrounding content unchanged.',
+          'Rewrite the user-highlighted section while preserving its meaning. You must call replace_selection with the exact selected text as expectedText and your rewrite as replacementText. Do not call replace_blocks. Leave all surrounding content unchanged.',
         polish:
           'Polish only the user-highlighted text for clarity and fluency. Do not edit text outside the highlighted range.',
         format:

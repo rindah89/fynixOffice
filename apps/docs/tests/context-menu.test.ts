@@ -202,7 +202,7 @@ describe('EditorContextMenu', () => {
     act(() => byLabel('AI 重写')!.click())
 
     const instruction = String(onAiPreset.mock.calls[0][0])
-    expect(instruction).toContain('Replace only the highlighted section')
+    expect(instruction).toContain('must call replace_selection')
     expect(instruction).toContain('<selected_text_json>"market"</selected_text_json>')
     unmount()
     editor.destroy()

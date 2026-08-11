@@ -83,6 +83,22 @@ export const AGENT_TOOLS: AgentToolDef[] = [
     },
   },
   {
+    name: 'replace_selection',
+    description:
+      'Replace exactly the current highlighted text, preserving all text outside the selection. Use this instead of replace_blocks for selection-scoped rewrites.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        expectedText: {
+          type: 'string',
+          description: 'the exact highlighted text supplied in the user request; guards against stale selection',
+        },
+        replacementText: { type: 'string', description: 'plain-text replacement for the selection' },
+      },
+      required: ['expectedText', 'replacementText'],
+    },
+  },
+  {
     name: 'apply_commands',
     description:
       'Execute formatting/structure/batch commands (batchUpdate style, see the command guide in the system prompt): text style, paragraph format, heading level, find & replace, delete/move blocks, list conversion, image properties.',
@@ -246,6 +262,7 @@ function editedExternally(editor: Editor): boolean {
 const INDEX_WRITE_SUMMARIES: Record<string, () => string> = {
   insert_content: () => t('aiSumInsertContent'),
   replace_blocks: () => t('aiSumReplaceContent'),
+  replace_selection: () => t('aiSumReplaceContent'),
   apply_commands: () => t('aiSumApplyCommands'),
   insert_chart: () => t('aiSumInsertChart'),
   edit_chart: () => t('aiSumEditChart'),
@@ -510,6 +527,31 @@ function executeSyncTool(
         output: `Replaced blocks ${range.start}-${range.end} with ${nodes.length} block(s). Block indexes have changed; use get_document_context if needed.`,
         mutated: true,
         summary: t('aiSumReplacedBlocks', { start: range.start, end: range.end }),
+      }
+    }
+
+    case 'replace_selection': {
+      const { from, to, empty } = editor.state.selection
+      if (empty) return fail(t('aiSumReplaceContent'), 'no text is currently selected')
+      const expectedText = String(call.input.expectedText ?? '')
+      const actualText = editor.state.doc.textBetween(from, to, '\n', '')
+      if (actualText !== expectedText) {
+        return fail(
+          t('aiSumReplaceContent'),
+          'the highlighted text changed before the rewrite could be applied; ask the user to select it again',
+        )
+      }
+      const replacementText = String(call.input.replacementText ?? '')
+      const changed = editor
+        .chain()
+        .focus()
+        .insertContentAt({ from, to }, replacementText, { updateSelection: true })
+        .run()
+      if (!changed) return fail(t('aiSumReplaceContent'), 'the highlighted text could not be replaced')
+      return {
+        output: 'Replaced only the highlighted text. Text outside the selection was left unchanged.',
+        mutated: true,
+        summary: t('aiSumReplaceContent'),
       }
     }
 
