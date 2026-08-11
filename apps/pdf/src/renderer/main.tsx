@@ -1,12 +1,12 @@
 import { createRoot } from 'react-dom/client'
-import { htmlLang, type Lang } from '@genoffice/i18n'
+import { htmlLang, type Lang } from '@fynixoffice/i18n'
 import App from './App'
 import { LocaleProvider } from './i18n/locale'
 import type { UiTheme } from '../shared/ipc'
-import '@genoffice/ui/tokens.css'
-import '@genoffice/ui/screentip.css'
+import '@fynixoffice/ui/tokens.css'
+import '@fynixoffice/ui/screentip.css'
 import './styles.css'
-import { installScreenTips } from '@genoffice/ui'
+import { installScreenTips } from '@fynixoffice/ui'
 
 installScreenTips()
 

@@ -46,7 +46,7 @@ import {
   type TableCell,
   type TableModel,
   type TextboxDisplay,
-} from '@genoffice/docx-engine'
+} from '@fynixoffice/docx-engine'
 import { bulletMarkerScale, computeListMarkerInfos, type ListItemRef } from './numbering'
 import { symbolFontCovers } from '../font-check'
 import { dropActiveSubEditor, notifySubEditorState, setActiveSubEditor } from './active-editor'

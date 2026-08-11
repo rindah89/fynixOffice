@@ -32,7 +32,7 @@ import {
   type StyleUpsert,
   type ThemeColors,
   type ThemeFonts,
-} from '@genoffice/docx-engine'
+} from '@fynixoffice/docx-engine'
 import type { Dispatch, SetStateAction } from 'react'
 import type { OpenFileResult } from '../shared/ipc'
 import {

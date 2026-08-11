@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { AgentToolCall } from '@genoffice/agent-core'
+import type { AgentToolCall } from '@fynixoffice/agent-core'
 import { AiCreditsError, sseLines, streamForProvider } from '../src/stream'
 import { jsonResponse, okResponse, sseStream } from './test-utils'
 
@@ -305,7 +305,7 @@ describe('streamForProvider: anthropic', () => {
 
   it('never sends an empty assistant content array when history has edits-only replies', async () => {
     // Prior empty terminal turns would map to content:[] and break follow-ups
-    // on Anthropic (genoffice#12 / #22 class of multi-turn failures).
+    // on Anthropic (fynixoffice#12 / #22 class of multi-turn failures).
     const fetchMock = vi
       .fn()
       .mockResolvedValue(
@@ -748,7 +748,7 @@ describe('streamForProvider: genspark', () => {
       expect(fetchMock).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
-          headers: expect.objectContaining({ 'X-Agent-Type': 'genoffice' }),
+          headers: expect.objectContaining({ 'X-Agent-Type': 'fynixoffice' }),
         }),
       )
     }

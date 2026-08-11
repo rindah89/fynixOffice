@@ -45,9 +45,9 @@ import {
   showSaveDialogWithMemory,
   viewMenuTemplate,
   windowMenuTemplate,
-} from '@genoffice/electron-utils'
-import { createI18n, getUiLang, type Lang, normalizeLang, setUiLang } from '@genoffice/i18n'
-import { ProjectStore } from '@genoffice/project-store'
+} from '@fynixoffice/electron-utils'
+import { createI18n, getUiLang, type Lang, normalizeLang, setUiLang } from '@fynixoffice/i18n'
+import { ProjectStore } from '@fynixoffice/project-store'
 
 import {
   AiCreditsError,
@@ -61,18 +61,17 @@ import {
   type AiStreamChunk,
   type GenSparkAccountStatus,
   type LegacyAiSettings,
-} from '@genoffice/ai-provider'
+} from '@fynixoffice/ai-provider'
 import { csvToXlsxBuffer, decodeCsvBuffer } from '../gateway/csv-import'
+import { gskApiKey, hasGskAuth, setGskProxyUrl, webSearch, imageSearch } from '@fynixoffice/ai-search'
 import {
-  ensureGenofficeLogin,
-  gskApiKey,
-  gskLoginInfo,
-  hasGskAuth,
-  setGskProxyUrl,
-  webSearch,
-  imageSearch,
-} from '@genoffice/ai-search'
-import { parseFileToText } from '@genoffice/file-parse'
+  ensureSuiteLogin,
+  hasSuiteSession,
+  suiteAccountStatus,
+  suiteSessionToken,
+  suiteStreamAi,
+} from '@fynixoffice/suite-auth'
+import { parseFileToText } from '@fynixoffice/file-parse'
 import type { CellEdit, SheetStructuralOps } from '../gateway/xlsx-gateway'
 import { readArchiveEntryText, saveWorkbookViaSidecar } from '../gateway/xlsx-package-io'
 import { parsePivotDefinition } from '../gateway/xlsx-pivot'
@@ -1319,7 +1318,7 @@ export async function createSheetsWindow(
     minWidth: 1024,
     minHeight: 680,
     show: false,
-    title: 'GenOffice Sheets',
+    title: 'fynixOffice Sheets',
     // Traffic lights sit inside the toolbar row.
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const } : {}),
     webPreferences: {
@@ -1435,7 +1434,7 @@ const ATTACHMENT_TEXT_EXTS = new Set([
   'sql',
   'css',
 ])
-/** office/pdf formats extract text via @genoffice/file-parse; images skip text
+/** office/pdf formats extract text via @fynixoffice/file-parse; images skip text
  * extraction and go multimodal (sheets:files-read-image) */
 const ATTACHMENT_EXTS = new Set([
   ...ATTACHMENT_TEXT_EXTS,
@@ -1506,7 +1505,7 @@ function savePastedImage(data: unknown, ext: unknown): string | null {
         ? Buffer.from(data.buffer, data.byteOffset, data.byteLength)
         : null
   if (!bytes || bytes.byteLength === 0) return null
-  const dir = join(app.getPath('temp'), 'genoffice-pasted')
+  const dir = join(app.getPath('temp'), 'fynixoffice-pasted')
   mkdirSync(dir, { recursive: true })
   const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-')
   const filePath = join(dir, `pasted-${stamp}-${++pastedImageSeq}.${cleanExt}`)
@@ -1514,7 +1513,7 @@ function savePastedImage(data: unknown, ext: unknown): string | null {
   return filePath
 }
 
-/** Attachment text extraction via @genoffice/file-parse (docx/pdf/pptx/xlsx/plain text) */
+/** Attachment text extraction via @fynixoffice/file-parse (docx/pdf/pptx/xlsx/plain text) */
 async function extractAttachmentText(filePath: string): Promise<string> {
   const stat = statSync(filePath)
   const stamp = `${stat.mtimeMs}:${stat.size}`
@@ -2123,20 +2122,23 @@ export function registerSheetsAiIpc(): void {
     return settings
   })
 
-  // Genspark account (gsk login state): the auth source for AI features; the
-  // frontend uses it to guide sign-in when logged out
   ipcMain.handle(
     IPC_CHANNELS.aiGskStatus,
     async (_event, withEmail?: unknown): Promise<GenSparkAccountStatus> => {
+      if (hasSuiteSession()) {
+        if (!withEmail) return { loggedIn: true }
+        const info = await suiteAccountStatus()
+        return info.loggedIn
+          ? { loggedIn: true, ...(info.email ? { email: info.email } : {}) }
+          : { loggedIn: false }
+      }
       if (!hasGskAuth()) return { loggedIn: false }
-      if (!withEmail) return { loggedIn: true }
-      const info = await gskLoginInfo()
-      return info?.email ? { loggedIn: true, email: info.email } : { loggedIn: true }
+      return { loggedIn: true }
     },
   )
 
   ipcMain.handle(IPC_CHANNELS.aiGskLogin, () => {
-    ensureGenofficeLogin((url) => void shell.openExternal(url))
+    ensureSuiteLogin((url) => void shell.openExternal(url))
   })
 
   ipcMain.handle(IPC_CHANNELS.aiSetSettings, (event, input: unknown) => {
@@ -2148,16 +2150,21 @@ export function registerSheetsAiIpc(): void {
   ipcMain.handle(IPC_CHANNELS.aiChat, async (event, input: unknown) => {
     sessionFor(event)
     const request = aiChatRequestSchema.parse(input)
+    // Suite mode: non-streaming chat is not exposed via the BFF yet; require suite
+    // session only for status — keep legacy chat for local keys when no suite session.
+    if (suiteSessionToken()) {
+      return {
+        ok: false,
+        error: 'Use the streaming AI panel (suite AI is stream-only on the Office server)',
+      }
+    }
     const provider = request.settings.provider as AiProviderId
     let config = request.settings.providers[provider]
     if (provider === 'genspark' && config && !config.apiKey) {
       config = { ...config, apiKey: gskApiKey() }
     }
     if (!config?.apiKey) {
-      return {
-        ok: false,
-        error: provider === 'genspark' ? tm('errGskNotLoggedIn') : tm('errNoApiKey', { provider }),
-      }
+      return { ok: false, error: tm('errGskNotLoggedIn') }
     }
     if (!config.model) return { ok: false, error: tm('errNoModel') }
     try {
@@ -2173,21 +2180,61 @@ export function registerSheetsAiIpc(): void {
     const { requestId, system, messages } = request
     const tools = request.tools ?? []
     const maxTokens = request.maxTokens ?? 8192
-    const provider = request.settings.provider as AiProviderId
-    let config = request.settings.providers[provider]
-    // Genspark's key never enters the settings file; it is read from the gsk
-    // login state per request
-    if (provider === 'genspark' && config && !config.apiKey) {
-      config = { ...config, apiKey: gskApiKey() }
-    }
     const send = (chunk: AiStreamChunk) => {
       if (!event.sender.isDestroyed()) event.sender.send(IPC_CHANNELS.aiStreamChunk, chunk)
+    }
+
+    if (suiteSessionToken()) {
+      const controller = new AbortController()
+      entry.aiStreams.set(requestId, controller)
+      try {
+        const model = request.settings.providers[request.settings.provider]?.model
+        await suiteStreamAi(
+          {
+            requestId,
+            system,
+            messages,
+            tools,
+            maxTokens,
+            ...(model ? { model } : {}),
+          },
+          (chunk) => {
+            send({
+              requestId: chunk.requestId || requestId,
+              type: chunk.type,
+              ...(chunk.text !== undefined ? { text: chunk.text } : {}),
+              ...(chunk.toolCall ? { toolCall: chunk.toolCall } : {}),
+              ...(chunk.error !== undefined ? { error: chunk.error } : {}),
+              ...(chunk.errorCode === 'timeout' ? { errorCode: 'timeout' as const } : {}),
+              ...(chunk.stopReason ? { stopReason: chunk.stopReason } : {}),
+            })
+          },
+          controller.signal,
+        )
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          send({
+            requestId,
+            type: 'error',
+            error: err instanceof Error ? err.message : String(err),
+          })
+        }
+      } finally {
+        entry.aiStreams.delete(requestId)
+      }
+      return
+    }
+
+    const provider = request.settings.provider as AiProviderId
+    let config = request.settings.providers[provider]
+    if (provider === 'genspark' && config && !config.apiKey) {
+      config = { ...config, apiKey: gskApiKey() }
     }
     if (!config?.apiKey) {
       send({
         requestId,
         type: 'error',
-        error: provider === 'genspark' ? tm('errGskNotLoggedIn') : tm('errNoApiKey', { provider }),
+        error: tm('errGskNotLoggedIn'),
       })
       return
     }
@@ -2197,7 +2244,6 @@ export function registerSheetsAiIpc(): void {
     }
     const controller = new AbortController()
     entry.aiStreams.set(requestId, controller)
-    // wire-activity keepalive: lets the renderer's silence watchdog tell a slow turn from a dead one
     let lastPing = 0
     const ping = () => {
       const now = Date.now()
@@ -2688,7 +2734,7 @@ async function prepareWorkbookForOpen(
     return { openPath: path }
   }
   const stem = basename(path).replace(/\.[^.]+$/, '')
-  const directory = join(app.getPath('temp'), 'genoffice-imports', randomUUID())
+  const directory = join(app.getPath('temp'), 'fynixoffice-imports', randomUUID())
   await mkdir(directory, { recursive: true })
   const openPath = join(directory, `${stem}.xlsx`)
   if (extension === 'csv') {
@@ -2857,16 +2903,16 @@ async function applyMainProcessProxy(): Promise<void> {
 export function startSheetsStandalone(): void {
   installNavigationGuard(app)
   installContextMenu(app, () => contextMenuLabels(getUiLang()))
-  // GENOFFICE_USER_DATA: test drivers point this at a scratch dir so automated
+  // FYNIXOFFICE_USER_DATA: test drivers point this at a scratch dir so automated
   // instances get their own userData AND single-instance lock (the lock is scoped
   // to userData), allowing parallel instances alongside a normal dev run.
   // Same dev-only hook as apps/slides/src/main/slides-main.ts.
-  if (!app.isPackaged && process.env.GENOFFICE_USER_DATA) {
-    app.setPath('userData', process.env.GENOFFICE_USER_DATA)
+  if (!app.isPackaged && process.env.FYNIXOFFICE_USER_DATA) {
+    app.setPath('userData', process.env.FYNIXOFFICE_USER_DATA)
   }
   void applyMainProcessProxy()
   app.whenReady().then(() => {
-    setUiLang(normalizeLang(process.env.GENOFFICE_LANG ?? app.getLocale()))
+    setUiLang(normalizeLang(process.env.FYNIXOFFICE_LANG ?? app.getLocale()))
     app.setAccessibilitySupportEnabled(true)
     installApplicationMenu()
     startCaptureServer()

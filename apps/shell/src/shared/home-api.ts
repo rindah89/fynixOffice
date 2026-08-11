@@ -1,6 +1,6 @@
 import type { UpdateChannel } from './update-api'
 
-/** UI language; kept self-contained here (mirrors Lang in @genoffice/i18n) */
+/** UI language; kept self-contained here (mirrors Lang in @fynixoffice/i18n) */
 export type UiLanguage =
   | 'zh'
   | 'en'
@@ -98,15 +98,15 @@ export interface HomeApi {
   getUpdateChannel(): Promise<UpdateChannel>
   /** switch + persist the update channel; triggers an immediate update check */
   setUpdateChannel(channel: UpdateChannel): Promise<void>
-  /** Genspark account status (gsk login state; to be upgraded to a signup/account system later) */
+  /** Fynix suite account status (Office server session; no billing fields) */
   accountStatus(): Promise<AccountStatus>
-  /** start Genspark login (opens the browser; accountStatus flips to logged-in on completion); returns whether the launch succeeded */
+  /** start suite SSO (opens the browser; accountStatus flips to logged-in on completion); returns whether the launch succeeded */
   accountLogin(): Promise<boolean>
   /** progress events for the login started via accountLogin; returns an unsubscribe */
   onAccountLogin(handler: (ev: AccountLoginEvent) => void): () => void
   /** re-open the pending login auth URL in the default browser (rescue when auto-open failed) */
   openLoginUrl(): Promise<void>
-  /** log out (clears the saved API key; the login state is shared globally with the gsk CLI) */
+  /** log out (clears the local suite session; server-side revoke is best-effort) */
   accountLogout(): Promise<void>
   /** app version (from package.json / electron app.getVersion) */
   getAppVersion(): Promise<string>
@@ -118,7 +118,7 @@ export interface HomeApi {
   getTheme(): Promise<UiTheme>
   /** switch + persist the UI theme; broadcasts 'app:theme-changed' to all web contents */
   setTheme(theme: UiTheme): Promise<void>
-  /** effective default save folder for new/untitled files (configured in userData/app-settings.json, falls back to <Documents>/GenOffice) */
+  /** effective default save folder for new/untitled files (configured in userData/app-settings.json, falls back to <Documents>/fynixOffice) */
   getDefaultSaveDir(): Promise<string>
   /** directory picker to change the default save folder; resolves to the new folder, or null when canceled or the pick was unusable */
   pickDefaultSaveDir(): Promise<string | null>
@@ -126,13 +126,11 @@ export interface HomeApi {
   onThemeChanged(handler: (theme: UiTheme) => void): () => void
   /** open the GenTeam community page in the default browser */
   openGenTeam(): Promise<void>
-  /** open the Genspark credit-usage page in the default browser */
-  openCreditUsage(): Promise<void>
   /** locally stored full cloud project list (instant; null when no store or logged out) */
   cloudProjectsCached(): Promise<CloudProjectsSnapshot | null>
-  /** sync the full list from Genspark and return it (1 request when nothing changed); null when the sync failed */
+  /** sync the full list from the cloud backend and return it; null when the sync failed */
   cloudProjectsSync(): Promise<CloudProjectsSnapshot | null>
-  /** open a cloud project (relative '/agents?id=...' URL) in the default browser */
+  /** open a cloud project URL in the default browser */
   openCloudProject(projectUrl: string): Promise<void>
 }
 
@@ -161,19 +159,18 @@ export interface CloudProjectsSnapshot {
 }
 
 export interface AccountStatus {
-  /** gsk is installed and logged in */
+  /** signed in to Fynix suite (Office server session present and valid) */
   loggedIn: boolean
   email?: string
-  /** remaining Genspark credits (absent when the balance query failed) */
-  creditBalance?: number
+  subject?: string
 }
 
-/** login flow progress pushed from main (gsk login CLI output) */
+/** login flow progress pushed from main (suite desktop SSO) */
 export interface AccountLoginEvent {
   phase: 'launched' | 'url' | 'success' | 'error'
   url?: string
   expiresInSec?: number
-  /** 'network' | 'expired' | raw CLI error text */
+  /** 'network' | 'expired' | 'denied' | raw error text */
   error?: string
 }
 
@@ -257,7 +254,6 @@ export const HOME_CHANNELS = {
   getDefaultSaveDir: 'home:get-default-save-dir',
   pickDefaultSaveDir: 'home:pick-default-save-dir',
   openGenTeam: 'home:open-genteam',
-  openCreditUsage: 'home:open-credit-usage',
   cloudProjects: 'home:cloud-projects',
   cloudProjectsCached: 'home:cloud-projects-cached',
   openCloudProject: 'home:open-cloud-project',

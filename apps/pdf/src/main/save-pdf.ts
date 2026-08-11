@@ -98,7 +98,7 @@ function addMarkup(pdfDoc: PDFDocument, page: PDFPage, m: MarkupInput): void {
     QuadPoints: m.quads.flat(),
     C: m.color,
     F: 4, // print
-    T: 'GenOffice',
+    T: 'fynixOffice',
     P: page.ref,
     AP: { N: apRef },
   })
@@ -170,7 +170,7 @@ async function addImageStamp(
     P: page.ref,
     AP: { N: pdfDoc.context.register(ap) },
   })
-  annot.set(PDFName.of('T'), PDFHexString.fromText('GenOffice'))
+  annot.set(PDFName.of('T'), PDFHexString.fromText('fynixOffice'))
   appendAnnot(pdfDoc, page, pdfDoc.context.register(annot))
 }
 
@@ -191,7 +191,7 @@ function addDrawing(pdfDoc: PDFDocument, page: PDFPage, d: DrawingInput): void {
       P: page.ref,
     })
     annot.set(PDFName.of('Contents'), PDFHexString.fromText(d.contents))
-    annot.set(PDFName.of('T'), PDFHexString.fromText('GenOffice'))
+    annot.set(PDFName.of('T'), PDFHexString.fromText('fynixOffice'))
     appendAnnot(pdfDoc, page, pdfDoc.context.register(annot))
     return
   }
@@ -262,7 +262,7 @@ function addDrawing(pdfDoc: PDFDocument, page: PDFPage, d: DrawingInput): void {
   if (d.kind === 'line' || d.kind === 'arrow') {
     annot.set(PDFName.of('L'), pdfDoc.context.obj([...d.from, ...d.to]))
   }
-  annot.set(PDFName.of('T'), PDFHexString.fromText('GenOffice'))
+  annot.set(PDFName.of('T'), PDFHexString.fromText('fynixOffice'))
   appendAnnot(pdfDoc, page, pdfDoc.context.register(annot))
 }
 

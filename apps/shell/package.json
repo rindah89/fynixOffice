@@ -1,13 +1,13 @@
 {
-  "name": "@genoffice/shell",
-  "productName": "GenOffice",
+  "name": "@fynixoffice/shell",
+  "productName": "fynixOffice",
   "version": "0.6.0",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/genspark-ai/genoffice",
+  "homepage": "https://github.com/rindah89/fynixOffice",
   "private": true,
-  "description": "Unified GenOffice shell: one app hosting the docs and sheets modules behind a home/launcher window",
+  "description": "Unified fynixOffice shell: one app hosting the docs and sheets modules behind a home/launcher window",
   "main": "out/main/index.js",
-  "desktopName": "genoffice.desktop",
+  "desktopName": "fynixoffice.desktop",
   "scripts": {
     "dev": "electron-vite dev --watch",
     "build": "electron-vite build",
@@ -19,18 +19,19 @@
     "dist:linux": "electron-vite build && electron-builder --linux"
   },
   "devDependencies": {
-    "@genoffice/agent-core": "*",
-    "@genoffice/ai-provider": "*",
-    "@genoffice/ai-search": "*",
-    "@genoffice/docs": "*",
-    "@genoffice/docx-engine": "*",
-    "@genoffice/electron-utils": "*",
-    "@genoffice/i18n": "*",
-    "@genoffice/pptx-engine": "*",
-    "@genoffice/pptx-render": "*",
-    "@genoffice/sheets": "*",
-    "@genoffice/slides": "*",
-    "@genoffice/ui": "*",
+    "@fynixoffice/agent-core": "*",
+    "@fynixoffice/ai-provider": "*",
+    "@fynixoffice/ai-search": "*",
+    "@fynixoffice/docs": "*",
+    "@fynixoffice/docx-engine": "*",
+    "@fynixoffice/electron-utils": "*",
+    "@fynixoffice/i18n": "*",
+    "@fynixoffice/pptx-engine": "*",
+    "@fynixoffice/pptx-render": "*",
+    "@fynixoffice/sheets": "*",
+    "@fynixoffice/slides": "*",
+    "@fynixoffice/suite-auth": "*",
+    "@fynixoffice/ui": "*",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.0.4",
@@ -44,5 +45,5 @@
     "vite": "^7.3.1",
     "vitest": "^4.1.10"
   },
-  "author": "GenOffice"
+  "author": "fynixOffice"
 }

@@ -1,14 +1,5 @@
-# GenOffice
 
-**The world's first full-featured open-source AI Office suite.**
-
-[![License: Apache-2.0](https://img.shields.io/github/license/genspark-ai/genoffice)](LICENSE)
-[![Latest release](https://img.shields.io/github/v/release/genspark-ai/genoffice)](https://github.com/genspark-ai/genoffice/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/genspark-ai/genoffice/total)](https://github.com/genspark-ai/genoffice/releases)
-[![GitHub stars](https://img.shields.io/github/stars/genspark-ai/genoffice?style=flat)](https://github.com/genspark-ai/genoffice/stargazers)
-![Platforms: macOS | Windows | Linux](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
-
-GenOffice is a free, open-source alternative to Microsoft Office for macOS,
+fynixOffice is a free, open-source alternative to Microsoft Office for macOS,
 Windows, and Linux, built around AI editing as a first-class workflow rather
 than a bolted-on chat box. It opens and saves the real Microsoft Office
 formats — Word (`.docx`), Excel (`.xlsx`), PowerPoint (`.pptx`) — and edits
@@ -16,7 +7,7 @@ PDF and Markdown too: a word processor, spreadsheet, presentation editor,
 PDF editor, and Markdown editor as six Electron apps sharing one engine
 layer.
 
-[![Meet GenOffice — the world's first full-featured open-source AI Office (video)](https://img.youtube.com/vi/B2pLdMX95v4/maxresdefault.jpg)](https://www.youtube.com/watch?v=B2pLdMX95v4)
+[![Meet fynixOffice — the world's first full-featured open-source AI Office (video)](https://img.youtube.com/vi/B2pLdMX95v4/maxresdefault.jpg)](https://www.youtube.com/watch?v=B2pLdMX95v4)
 
 [Watch the demo video on YouTube](https://www.youtube.com/watch?v=B2pLdMX95v4)
 
@@ -38,30 +29,30 @@ layer.
 
 | Platform                             | Requirements                                          | Download                                                                                                                         |
 | ------------------------------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **macOS** — Apple Silicon (arm64)    | macOS 11+                                             | [GenOffice-0.6.101-arm64.dmg](https://github.com/genspark-ai/genoffice/releases/download/v0.6.101/GenOffice-0.6.101-arm64.dmg)   |
-| **macOS** — Intel (x64)              | macOS 11+                                             | [GenOffice-0.6.101.dmg](https://github.com/genspark-ai/genoffice/releases/download/v0.6.101/GenOffice-0.6.101.dmg)               |
-| **Windows** (x64)                    | Windows 10+                                           | [GenOfficeSetup-v0.6.101.exe](https://github.com/genspark-ai/genoffice/releases/download/v0.6.101/GenOfficeSetup-v0.6.101.exe)   |
-| **Linux** — Debian / Ubuntu          | x86_64, glibc 2.34+ (Ubuntu 22.04 or newer)           | [genoffice_0.6.101_amd64.deb](https://github.com/genspark-ai/genoffice/releases/download/v0.6.101/genoffice_0.6.101_amd64.deb)   |
-| **Linux** — Fedora / RHEL / openSUSE | x86_64, glibc 2.34+ (Fedora 35+, RHEL 9+, Leap 15.6+) | [genoffice-0.6.101.x86_64.rpm](https://github.com/genspark-ai/genoffice/releases/download/v0.6.101/genoffice-0.6.101.x86_64.rpm) |
-| **Linux** — other distributions      | x86_64, glibc 2.34+, FUSE 2                           | [GenOffice-0.6.101.AppImage](https://github.com/genspark-ai/genoffice/releases/download/v0.6.101/GenOffice-0.6.101.AppImage)     |
+| **macOS** — Apple Silicon (arm64)    | macOS 11+                                             | [fynixOffice-0.6.101-arm64.dmg](https://github.com/rindah89/fynixOffice/releases/download/v0.6.101/fynixOffice-0.6.101-arm64.dmg)   |
+| **macOS** — Intel (x64)              | macOS 11+                                             | [fynixOffice-0.6.101.dmg](https://github.com/rindah89/fynixOffice/releases/download/v0.6.101/fynixOffice-0.6.101.dmg)               |
+| **Windows** (x64)                    | Windows 10+                                           | [fynixOfficeSetup-v0.6.101.exe](https://github.com/rindah89/fynixOffice/releases/download/v0.6.101/fynixOfficeSetup-v0.6.101.exe)   |
+| **Linux** — Debian / Ubuntu          | x86_64, glibc 2.34+ (Ubuntu 22.04 or newer)           | [fynixoffice_0.6.101_amd64.deb](https://github.com/rindah89/fynixOffice/releases/download/v0.6.101/fynixoffice_0.6.101_amd64.deb)   |
+| **Linux** — Fedora / RHEL / openSUSE | x86_64, glibc 2.34+ (Fedora 35+, RHEL 9+, Leap 15.6+) | [fynixoffice-0.6.101.x86_64.rpm](https://github.com/rindah89/fynixOffice/releases/download/v0.6.101/fynixoffice-0.6.101.x86_64.rpm) |
+| **Linux** — other distributions      | x86_64, glibc 2.34+, FUSE 2                           | [fynixOffice-0.6.101.AppImage](https://github.com/rindah89/fynixOffice/releases/download/v0.6.101/fynixOffice-0.6.101.AppImage)     |
 
 All builds come from `main`; the macOS and Windows installers are signed.
-Older versions are on the [Releases](https://github.com/genspark-ai/genoffice/releases) page.
+Older versions are on the [Releases](https://github.com/rindah89/fynixOffice/releases) page.
 
 ### Installing on Linux
 
-The deb installs with apt — it pulls in the dependencies and adds GenOffice
+The deb installs with apt — it pulls in the dependencies and adds fynixOffice
 to the applications menu:
 
 ```bash
-sudo apt install ./genoffice_0.6.101_amd64.deb
+sudo apt install ./fynixoffice_0.6.101_amd64.deb
 ```
 
 On Fedora / RHEL-family / openSUSE, install the rpm instead:
 
 ```bash
-sudo dnf install ./genoffice-0.6.101.x86_64.rpm     # Fedora / RHEL family
-sudo zypper install ./genoffice-0.6.101.x86_64.rpm  # openSUSE
+sudo dnf install ./fynixoffice-0.6.101.x86_64.rpm     # Fedora / RHEL family
+sudo zypper install ./fynixoffice-0.6.101.x86_64.rpm  # openSUSE
 ```
 
 The AppImage instead runs in place: install the FUSE 2 runtime
@@ -69,20 +60,21 @@ The AppImage instead runs in place: install the FUSE 2 runtime
 make the file executable, then run it:
 
 ```bash
-chmod +x GenOffice-0.6.101.AppImage
-./GenOffice-0.6.101.AppImage
+chmod +x fynixOffice-0.6.101.AppImage
+./fynixOffice-0.6.101.AppImage
 ```
 
 ## Apps
 
 | App             | Product                | What it is                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | --------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/docs`     | **GenOffice Docs**     | `.docx` word processor. Byte-preserving round trip: only dirty paragraphs are regenerated (paragraph patch), everything else in the original file is kept byte-for-byte, so opening and saving never breaks layout in Word. Paginated view whose line metrics reproduce the original document's layout, tracked changes, comments, styles, equations, ink.                                                                                                                                                                                                      |
-| `apps/sheets`   | **GenOffice Sheets**   | `.xlsx` spreadsheet. UI built on the open-source [Univer](https://github.com/dream-num/univer) core (Apache-2.0) with a large layer of in-house extensions; `.xlsx` import/export runs through an in-house Rust sidecar (calamine + IronCalc), charts are rendered in-house (Konva), plus pivot tables, slicers, conditional formatting, and formula tracing.                                                                                                                                                                                                   |
-| `apps/slides`   | **GenOffice Slides**   | `.pptx` presentations. In-house `.pptx` parse/render/edit engine with masters, charts, cropping, ink, and text shaping (HarfBuzz metrics).                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `apps/pdf`      | **GenOffice PDF**      | `.pdf` viewer/editor on [pdf.js](https://github.com/mozilla/pdf.js) (Apache-2.0) + [pdf-lib](https://github.com/Hopding/pdf-lib) (MIT): annotations, forms, outlines, stamps, signatures, page operations, and printing support. True text editing — paragraph selection with in-block reflow, alignment restoration, original-font preservation — and content-stream image insert/edit, all rewriting page content streams through [PDFium](https://pdfium.googlesource.com/pdfium/) wasm (BSD-3-Clause) with subset-embedded fonts — no cover-up annotations. |
-| `apps/markdown` | **GenOffice Markdown** | `.md` / `.markdown` editor: Tiptap block editor over plain Markdown files — headings, lists, tables, images, code blocks — saved back as plain Markdown, hosted in shell tabs.                                                                                                                                                                                                                                                                                                                                                                                  |
-| `apps/shell`    | **GenOffice**          | The suite shell: home screen, tabbed hosting of the five editors, light/dark/system theme, auto-update.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `apps/docs`     | **fynixOffice Docs**     | `.docx` word processor. Byte-preserving round trip: only dirty paragraphs are regenerated (paragraph patch), everything else in the original file is kept byte-for-byte, so opening and saving never breaks layout in Word. Paginated view whose line metrics reproduce the original document's layout, tracked changes, comments, styles, equations, ink.                                                                                                                                                                                                      |
+| `apps/sheets`   | **fynixOffice Sheets**   | `.xlsx` spreadsheet. UI built on the open-source [Univer](https://github.com/dream-num/univer) core (Apache-2.0) with a large layer of in-house extensions; `.xlsx` import/export runs through an in-house Rust sidecar (calamine + IronCalc), charts are rendered in-house (Konva), plus pivot tables, slicers, conditional formatting, and formula tracing.                                                                                                                                                                                                   |
+| `apps/slides`   | **fynixOffice Slides**   | `.pptx` presentations. In-house `.pptx` parse/render/edit engine with masters, charts, cropping, ink, and text shaping (HarfBuzz metrics).                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `apps/pdf`      | **fynixOffice PDF**      | `.pdf` viewer/editor on [pdf.js](https://github.com/mozilla/pdf.js) (Apache-2.0) + [pdf-lib](https://github.com/Hopding/pdf-lib) (MIT): annotations, forms, outlines, stamps, signatures, page operations, and printing support. True text editing — paragraph selection with in-block reflow, alignment restoration, original-font preservation — and content-stream image insert/edit, all rewriting page content streams through [PDFium](https://pdfium.googlesource.com/pdfium/) wasm (BSD-3-Clause) with subset-embedded fonts — no cover-up annotations. |
+| `apps/markdown` | **fynixOffice Markdown** | `.md` / `.markdown` editor: Tiptap block editor over plain Markdown files — headings, lists, tables, images, code blocks — saved back as plain Markdown, hosted in shell tabs.                                                                                                                                                                                                                                                                                                                                                                                  |
+| `apps/shell`    | **fynixOffice**          | The suite shell: home screen, tabbed hosting of the five editors, light/dark/system theme, auto-update, `fynixoffice://` deep links.                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `apps/office-server` | **office-api**      | Suite BFF (Docker): Keycloak SSO, open tickets, AI proxy. Not a browser Office UI.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 Every app embeds the same AI panel: block-granular AI editing with version
 snapshots and diffs in docs, a tool-calling agent over workbook/slide/PDF
@@ -93,13 +85,40 @@ tokens (`packages/ui`), with a CI guard that keeps chrome colors on the token
 system. Document surfaces stay light in dark mode — Word-style dark chrome
 around white paper — so files render and export identically in both themes.
 
-**AI backend (Genspark).** The apps sign in to a Genspark account through a
-device-code flow; no model API key is entered or stored by the user. Model
-calls route through the Genspark proxy (Claude, GPT, and Gemini families).
-The same account also unlocks the Genspark ("gsk") tool endpoints the agents
-build on — web and image search, image generation and editing,
-image/audio/video analysis, and audio transcription — all reachable through
-`packages/ai-search` for anyone extending the agent layer.
+**AI backend (Fynix suite).** Desktop signs in via Fynix suite SSO (Keycloak
+through the Office server BFF). Opaque session tokens stay local; vendor API
+keys never leave the server (`OFFICE_LLM_*`). There is no per-user credit wallet
+or billing UI. Inference streams through `POST /ai/stream` on
+`apps/office-server`.
+
+## Fynix suite integration
+
+fynixOffice is the **desktop editor** for the Fynix suite. DocFlow and Finance
+stay web systems of record; staff open real `.docx` / `.xlsx` files in Office
+via deep links.
+
+| Topic | Doc |
+|-------|-----|
+| Overview & index | [docs/fynix-suite/README.md](docs/fynix-suite/README.md) |
+| Architecture (desktop vs server) | [docs/fynix-suite/architecture.md](docs/fynix-suite/architecture.md) |
+| Docker deploy on Linux | [apps/office-server/DEPLOY.md](apps/office-server/DEPLOY.md) |
+| DocFlow → Word / Finance → Excel | [apps/office-server/SUITE-OPEN.md](apps/office-server/SUITE-OPEN.md) |
+| DNS, Caddy, Vercel | [docs/fynix-suite/dns-and-hosting.md](docs/fynix-suite/dns-and-hosting.md) |
+| office-server API & env | [apps/office-server/README.md](apps/office-server/README.md) |
+
+**Deploy split:** run `office-api` in Docker on the suite host; install the
+Electron app on workstations. You do **not** host the full Word/Excel UI on
+Vercel — only suite web products (e.g. Finance) may live there; Office API DNS
+points at the suite edge.
+
+```bash
+# Server (suite host)
+npm run dev:server   # or docker compose -f apps/office-server/docker-compose.yml ...
+
+# Desktop (dev)
+export OFFICE_SERVER_URL=http://localhost:4321
+npm run dev
+```
 
 ## Engine packages
 
@@ -115,7 +134,9 @@ All pure TypeScript, no Electron dependency, unit-tested (except the UI kit):
   every app.
 - `packages/ai-provider` — provider abstraction and streaming for the model
   backends.
-- `packages/ai-search` — Genspark auth + web/image search tools.
+- `packages/suite-auth` — desktop client for suite SSO sessions.
+- `packages/ai-search` — optional legacy search/tools helpers.
+- `apps/office-server` — suite BFF (Keycloak SSO + AI stream proxy).
 - `packages/i18n`, `packages/ui`, `packages/project-store`,
   `packages/electron-utils` — shared i18n core, React UI kit, recent-files
   store, and Electron main-process helpers.
@@ -128,6 +149,7 @@ npm run fixtures     # generate test .docx fixtures
 npm test             # engine + app unit tests (docs/sheets/slides need no display)
 npm run typecheck    # tsc --noEmit across every workspace
 npm run dev          # all five editors + shell against Vite dev servers
+npm run dev:server   # office-server BFF (suite SSO / tickets / AI) on :4321
 npm run dev:docs     # a single app (same pattern works per workspace)
 npm run dist:mac     # package macOS dmg (regenerates third-party notices)
 npm run dist:win     # package Windows nsis installer
@@ -135,7 +157,7 @@ npm run dist:linux   # package Linux AppImage + deb + rpm
 ```
 
 The sheets app additionally needs a Rust toolchain for its xlsx sidecar
-(`cargo` on PATH); `npm run build -w @genoffice/sheets` compiles it
+(`cargo` on PATH); `npm run build -w @fynixoffice/sheets` compiles it
 automatically.
 
 Local UI/e2e driver scripts (Playwright + Electron, for local acceptance, not
@@ -159,21 +181,37 @@ editor didn't touch survives the round trip untouched.
 
 ## FAQ
 
-**Is GenOffice free?**
-Yes. GenOffice is free and open-source under the Apache-2.0 license — no
+**Is fynixOffice free?**
+Yes. fynixOffice is free and open-source under the Apache-2.0 license — no
 trial, no paid tier for the apps themselves.
 
-**Can GenOffice open Microsoft Word, Excel, and PowerPoint files?**
-Yes. GenOffice opens and saves native `.docx`, `.xlsx`, and `.pptx` files.
+**Can fynixOffice open Microsoft Word, Excel, and PowerPoint files?**
+Yes. fynixOffice opens and saves native `.docx`, `.xlsx`, and `.pptx` files.
 Saving is byte-preserving: parts of the file you didn't touch are written
 back byte-for-byte, so documents keep working in Microsoft Office.
 
-**Does GenOffice work offline?**
+**Does fynixOffice work offline?**
 Document editing is fully local — files never leave your machine to be
-opened, edited, or saved. The AI features (agents, search, image tools) sign
-in to a Genspark account and need a network connection.
+opened, edited, or saved. Suite sign-in, open-from-DocFlow/Finance, and AI
+need a network connection to `office-server` (and Keycloak / your LLM
+provider).
 
-**Can GenOffice edit PDF files?**
+**Do users install an app or open a website?**
+**Editing** uses the **desktop app**. The **server** hosts SSO, file open
+tickets, and AI — not a full online Word/Excel. See
+[docs/fynix-suite/architecture.md](docs/fynix-suite/architecture.md).
+
+**Can DocFlow open a document in Word / Finance open a report in Excel?**
+Yes — via open tickets and `fynixoffice://` deep links. See
+[apps/office-server/SUITE-OPEN.md](apps/office-server/SUITE-OPEN.md).
+
+**Do we configure Office DNS on Vercel?**
+Only if a *web* suite product (e.g. Finance) already uses Vercel for *its*
+hostname. The `office.` API hostname should point at the suite Docker edge,
+not at Vercel. See
+[docs/fynix-suite/dns-and-hosting.md](docs/fynix-suite/dns-and-hosting.md).
+
+**Can fynixOffice edit PDF files?**
 Yes — real PDF text and image editing that rewrites the page content stream
 with the original fonts preserved, not cover-up annotations.
 
@@ -185,7 +223,7 @@ AI-generated content.
 
 ## Acknowledgements
 
-GenOffice would not be possible without these open-source projects:
+fynixOffice would not be possible without these open-source projects:
 
 - [Electron](https://www.electronjs.org/) — the desktop runtime for every app.
 - [Univer](https://github.com/dream-num/univer) (Apache-2.0) — the spreadsheet
@@ -217,10 +255,9 @@ Caladea, Noto CJK subsets) are OFL/Apache.
 
 ## License
 
-GenOffice is licensed under the [Apache License 2.0](LICENSE), with one
+fynixOffice is licensed under the [Apache License 2.0](LICENSE), with one
 exception: the `ee/` directory is reserved for future enterprise modules and
-is covered by the [GenOffice Enterprise License](ee/LICENSE).
+is covered by the [fynixOffice Enterprise License](ee/LICENSE).
 
-The GenOffice and Genspark names and logos are trademarks of Mainfunc, Inc.
-The Apache-2.0 license does not grant permission to use them (see section 6);
-forks should use their own branding.
+The Genspark name and logo are trademarks of Mainfunc, Inc. The Apache-2.0
+license does not grant permission to use them (see section 6).

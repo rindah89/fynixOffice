@@ -185,9 +185,6 @@ const homeApi: HomeApi = {
   async openGenTeam() {
     await ipcRenderer.invoke(HOME_CHANNELS.openGenTeam)
   },
-  async openCreditUsage() {
-    await ipcRenderer.invoke(HOME_CHANNELS.openCreditUsage)
-  },
   async cloudProjectsCached() {
     const result: unknown = await ipcRenderer.invoke(HOME_CHANNELS.cloudProjectsCached)
     return asCloudProjectsSnapshot(result)

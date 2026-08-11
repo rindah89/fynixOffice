@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactElement } from 'react'
-import logoLockup from './assets/genoffice-logo.svg'
+import logoLockup from './assets/fynixoffice-logo.svg'
 import iconDocx from './assets/file-docx.svg'
 import iconXlsx from './assets/file-xlsx.svg'
 import iconPptx from './assets/file-pptx.svg'
@@ -417,7 +417,7 @@ function AccountEntry({
   // incremented on login retry, resetting the polling timer
   const [loginNonce, setLoginNonce] = useState(0)
   const [loginError, setLoginError] = useState<
-    'timeout' | 'launch' | 'network' | 'expired' | 'failed' | null
+    'timeout' | 'launch' | 'network' | 'expired' | 'denied' | 'failed' | null
   >(null)
   // auth URL reported by the login CLI — rescue entry when the browser did not open
   const [authUrl, setAuthUrl] = useState<string | null>(null)
@@ -458,7 +458,13 @@ function AccountEntry({
         setWaiting(false)
         setAuthUrl(null)
         setLoginError(
-          ev.error === 'network' ? 'network' : ev.error === 'expired' ? 'expired' : 'failed',
+          ev.error === 'network'
+            ? 'network'
+            : ev.error === 'expired'
+              ? 'expired'
+              : ev.error === 'denied'
+                ? 'denied'
+                : 'failed',
         )
       }
     })
@@ -493,6 +499,7 @@ function AccountEntry({
         launch: t('loginLaunchFailed'),
         network: t('loginNetworkError'),
         expired: t('loginExpired'),
+        denied: t('loginDenied'),
         failed: t('loginFailed'),
       }[loginError]
     : null
@@ -1000,8 +1007,11 @@ export function Home() {
   const [navCounts, setNavCounts] = useState({ recent: 0, starred: 0 })
   const [loadingMore, setLoadingMore] = useState(false)
   const [view, setView] = useState<'recent' | 'starred'>('recent')
-  // Genspark web projects take over the content area (like a selected project)
-  const [cloudMode, setCloudMode] = useState(false)
+  // Legacy Genspark cloud projects UI — disabled for suite SSO (no billing/cloud account product).
+  const cloudMode = false
+  const setCloudMode = (_v: boolean) => {
+    /* suite mode: cloud projects nav is not offered */
+  }
   const [filter, setFilter] = useState('all')
   const [rowMenu, setRowMenu] = useState<string | null>(null)
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
@@ -1009,14 +1019,12 @@ export function Home() {
   const [confirmDelete, setConfirmDelete] = useState<string[] | null>(null)
   // name in the greeting; omitted when logged out
   const [accountName, setAccountName] = useState('')
-  // Genspark Projects is web-account data, so its nav entry only shows when logged in
   const [loggedIn, setLoggedIn] = useState(false)
   // single source of account state: AccountEntry reports every change (initial
   // load, login, logout), keeping the greeting name and the nav entry in sync
   const handleAccountStatus = useCallback((s: AccountStatus | null) => {
     const on = s?.loggedIn ?? false
     setLoggedIn(on)
-    if (!on) setCloudMode(false)
     const name = on ? (s?.email ?? '').split('@')[0] : ''
     setAccountName(name ? name[0].toUpperCase() + name.slice(1) : '')
   }, [])
@@ -1875,7 +1883,7 @@ export function Home() {
     <div className="home">
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <img className="logo-lockup" src={logoLockup} alt="GenOffice" />
+          <img className="logo-lockup" src={logoLockup} alt="fynixOffice" />
         </div>
 
         <nav className="sidebar-nav">
@@ -1918,7 +1926,7 @@ export function Home() {
             <span className="nav-label">{t('navStarred')}</span>
             <span className="nav-count">{navCounts.starred}</span>
           </button>
-          {loggedIn && (
+          {false && (
             <button
               className={`nav-item${cloudMode && !selectedProjectId ? ' active' : ''}`}
               onClick={() => {

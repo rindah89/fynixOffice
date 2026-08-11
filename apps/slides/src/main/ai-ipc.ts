@@ -18,24 +18,29 @@ import {
   type AiStreamRequest,
   type GenSparkAccountStatus,
   type LegacyAiSettings,
-} from '@genoffice/ai-provider'
-import { fetchRemoteImage } from '@genoffice/electron-utils'
+} from '@fynixoffice/ai-provider'
+import { fetchRemoteImage } from '@fynixoffice/electron-utils'
 import {
   webSearch,
   imageSearch,
-  ensureGenofficeLogin,
   gskApiKey,
   gskGenerateImage,
   gskAnalyzeMedia,
-  gskLoginInfo,
   hasGskAuth,
-} from '@genoffice/ai-search'
-import { addPicture, replacePictureBytes } from '@genoffice/pptx-engine'
-import { EMU_PER_PX_96 } from '@genoffice/pptx-render'
+} from '@fynixoffice/ai-search'
+import {
+  ensureSuiteLogin,
+  hasSuiteSession,
+  suiteAccountStatus,
+  suiteSessionToken,
+  suiteStreamAi,
+} from '@fynixoffice/suite-auth'
+import { addPicture, replacePictureBytes } from '@fynixoffice/pptx-engine'
+import { EMU_PER_PX_96 } from '@fynixoffice/pptx-render'
 import { tm } from './i18n-main'
 import { pushHistory, rebuildSlide, sessions } from './session-state'
 
-// ---- AI settings + streaming proxy (the main process does the networking to avoid renderer CORS; implementation shared via @genoffice/ai-provider) ----
+// ---- AI settings + streaming proxy (the main process does the networking to avoid renderer CORS; implementation shared via @fynixoffice/ai-provider) ----
 
 const AI_SETTINGS_PATH = () => join(app.getPath('userData'), 'ai-settings.json')
 
@@ -64,19 +69,23 @@ export function registerAiIpc(): void {
     return settings
   })
 
-  // Genspark account (gsk login state): the auth source for AI features; when logged out the frontend uses this to guide login
   ipcMain.handle(
     'ai:gsk-status',
     async (_event, withEmail?: boolean): Promise<GenSparkAccountStatus> => {
+      if (hasSuiteSession()) {
+        if (!withEmail) return { loggedIn: true }
+        const info = await suiteAccountStatus()
+        return info.loggedIn
+          ? { loggedIn: true, ...(info.email ? { email: info.email } : {}) }
+          : { loggedIn: false }
+      }
       if (!hasGskAuth()) return { loggedIn: false }
-      if (!withEmail) return { loggedIn: true }
-      const info = await gskLoginInfo()
-      return info?.email ? { loggedIn: true, email: info.email } : { loggedIn: true }
+      return { loggedIn: true }
     },
   )
 
   ipcMain.handle('ai:gsk-login', () => {
-    ensureGenofficeLogin((url) => void shell.openExternal(url))
+    ensureSuiteLogin((url) => void shell.openExternal(url))
   })
 
   ipcMain.handle('ai:set-settings', (_event, settings: AiSettings) => {
@@ -87,20 +96,61 @@ export function registerAiIpc(): void {
     const { requestId, settings, system, messages } = request
     const tools = request.tools ?? []
     const maxTokens = request.maxTokens ?? 8192
-    const provider = settings.provider
-    let config = settings.providers?.[provider]
-    // The genspark key never enters the settings file; it is fetched from the gsk login state per request
-    if (provider === 'genspark' && config && !config.apiKey) {
-      config = { ...config, apiKey: gskApiKey() }
-    }
     const send = (chunk: AiStreamChunk) => {
       if (!event.sender.isDestroyed()) event.sender.send('ai:stream-chunk', chunk)
+    }
+
+    if (suiteSessionToken()) {
+      const controller = new AbortController()
+      activeAiStreams.set(requestId, controller)
+      try {
+        const model = settings.providers?.[settings.provider]?.model
+        await suiteStreamAi(
+          {
+            requestId,
+            system,
+            messages,
+            tools,
+            maxTokens,
+            ...(model ? { model } : {}),
+          },
+          (chunk) => {
+            send({
+              requestId: chunk.requestId || requestId,
+              type: chunk.type,
+              ...(chunk.text !== undefined ? { text: chunk.text } : {}),
+              ...(chunk.toolCall ? { toolCall: chunk.toolCall } : {}),
+              ...(chunk.error !== undefined ? { error: chunk.error } : {}),
+              ...(chunk.errorCode === 'timeout' ? { errorCode: 'timeout' as const } : {}),
+              ...(chunk.stopReason ? { stopReason: chunk.stopReason } : {}),
+            })
+          },
+          controller.signal,
+        )
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          send({
+            requestId,
+            type: 'error',
+            error: err instanceof Error ? err.message : String(err),
+          })
+        }
+      } finally {
+        activeAiStreams.delete(requestId)
+      }
+      return
+    }
+
+    const provider = settings.provider
+    let config = settings.providers?.[provider]
+    if (provider === 'genspark' && config && !config.apiKey) {
+      config = { ...config, apiKey: gskApiKey() }
     }
     if (!config?.apiKey) {
       send({
         requestId,
         type: 'error',
-        error: provider === 'genspark' ? tm('errGskNotLoggedIn') : tm('errNoApiKey', { provider }),
+        error: tm('errGskNotLoggedIn'),
       })
       return
     }
@@ -110,7 +160,6 @@ export function registerAiIpc(): void {
     }
     const controller = new AbortController()
     activeAiStreams.set(requestId, controller)
-    // wire-activity keepalive: lets the renderer's silence watchdog tell a slow turn from a dead one
     let lastPing = 0
     const ping = () => {
       const now = Date.now()

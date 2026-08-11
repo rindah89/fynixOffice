@@ -1,13 +1,13 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { htmlLang } from '@genoffice/i18n'
+import { htmlLang } from '@fynixoffice/i18n'
 import { AppFrame } from './AppFrame'
 import { LocaleProvider } from './locale'
-import '@genoffice/ui/tokens.css'
-import '@genoffice/ui/screentip.css'
+import '@fynixoffice/ui/tokens.css'
+import '@fynixoffice/ui/screentip.css'
 import './home.css'
 import './tabbar.css'
-import { installScreenTips } from '@genoffice/ui'
+import { installScreenTips } from '@fynixoffice/ui'
 
 installScreenTips()
 

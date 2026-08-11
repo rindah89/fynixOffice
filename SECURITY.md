@@ -3,7 +3,7 @@
 ## Reporting a Vulnerability
 
 Please report suspected vulnerabilities privately via GitHub's
-[private vulnerability reporting](https://github.com/genspark-ai/genoffice/security/advisories/new)
+[private vulnerability reporting](https://github.com/rindah89/fynixOffice/security/advisories/new)
 on this repository. Do not open public issues for security reports. We aim to
 acknowledge reports within 72 hours.
 
@@ -16,11 +16,15 @@ All application windows run with the full Electron renderer lockdown:
 - Renderers reach the main process only through typed, validated IPC channels
   (payloads are schema-checked in the main process; sheets uses zod end to end).
 - Every `shell.openExternal` call goes through a single shared gate
-  (`@genoffice/electron-utils` → `safeExternalUrl`) that parses the URL and
+  (`@fynixoffice/electron-utils` → `safeExternalUrl`) that parses the URL and
   enforces a protocol allowlist (http/https; pdf link annotations additionally
   allow mailto). `file:`, `javascript:`, and custom schemes are always rejected.
-- No API keys are hardcoded. AI requests are proxied through the signed-in
-  account by default; user-supplied keys stay in the OS-level settings store.
+- No API keys are hardcoded. In suite mode, AI requests use an opaque session
+  to `office-server`; vendor LLM keys stay on the server (`OFFICE_LLM_*`).
+  Optional legacy/direct provider keys, if used, stay in OS-level settings.
+- Suite open tickets (`/open/tickets`) are short-lived; content is released only
+  to a valid suite session. Service mint keys (`OFFICE_OPEN_SERVICE_KEY`) must
+  stay server-side (DocFlow/Finance backends), never in the Electron renderer.
 
 ## Threat Model: AI-Generated Layout Scripts (slides)
 

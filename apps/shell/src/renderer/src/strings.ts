@@ -4,7 +4,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: '最近',
     navStarred: '收藏',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle: '在网页端用 Genspark AI 创建的项目。编辑在浏览器中继续——点击任意项目即可打开。',
     cloudSearchPlaceholder: '搜索 {n} 个项目…',
     cloudNoResults: '没有匹配的项目。',
@@ -14,7 +14,7 @@ export const strings = {
     cloudSortRecent: '最近',
     cloudSortOldest: '最早',
     cloudRefresh: '刷新',
-    cloudLoginHint: '登录 Genspark 账号，查看你在网页端创建的项目。',
+    cloudLoginHint: '登录 Fynix 账号，查看你在网页端创建的项目。',
     cloudEmpty: '还没有网页端项目。',
     cloudError: '加载失败，请稍后重试。',
     cloudRetry: '重试',
@@ -103,9 +103,9 @@ export const strings = {
     accountGenspark: 'Genspark 账号',
     account: '账号',
     login: '登录',
-    loginGenspark: '登录 Genspark 账号',
+    loginGenspark: '登录 Fynix 账号',
     loggedIn: '已登录',
-    loggedInGenspark: '已登录 Genspark',
+    loggedInGenspark: '已登录 Fynix',
     waitingLogin: '等待浏览器登录…点击可重新拉起登录页',
     waitingShort: '等待登录…',
     loginTimeout: '登录超时,点击重试',
@@ -116,6 +116,7 @@ export const strings = {
     loginNetworkError: '无法连接 Genspark,请检查网络或代理设置',
     loginExpired: '登录已过期,点击重试',
     loginFailed: '登录失败,点击重试',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: '正在退出…',
     logout: '退出登录',
     credits: '积分',
@@ -148,11 +149,11 @@ export const strings = {
     tabList: '全部标签',
     newTab: '新建标签页',
     // First-run onboarding
-    onbTitle1: '欢迎使用 GenOffice',
+    onbTitle1: '欢迎使用 fynixOffice',
     onbSubtitle1: '第一个开源的 AI 原生 Office 套件',
     onbBody1: '创建文档、制作表格、生成演示、审阅 PDF。AI 深度融入每个环节。',
     onbTitle2: '这只是一个开始',
-    onbBody2: 'GenOffice 目前处于 alpha 阶段。欢迎加入 GenTeam 群聊，分享反馈，一起塑造它的未来。',
+    onbBody2: 'fynixOffice 目前处于 alpha 阶段。欢迎加入 GenTeam 群聊，分享反馈，一起塑造它的未来。',
     onbCredits: '活跃贡献者可获得 **1,000+ Genspark 积分**',
     onbJoinGenTeam: '加入 GenTeam',
     onbSkip: '跳过',
@@ -161,13 +162,13 @@ export const strings = {
     onbStepAria: '第 {n} 页，共 {total} 页',
     onbTitle3: '人人免费',
     onbBody3: '无授权费用，无广告，无水印。',
-    onbNote3: 'AI 功能可能消耗 Genspark 积分。',
+    onbNote3: '使用 AI 功能需登录 Fynix。',
     onbBack: '上一步',
   },
   en: {
     navRecent: 'Recent',
     navStarred: 'Starred',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Projects created on the web with Genspark AI. Editing continues in your browser — click any project to open it.',
     cloudSearchPlaceholder: 'Search {n} projects…',
@@ -262,9 +263,9 @@ export const strings = {
     accountGenspark: 'Genspark Account',
     account: 'Account',
     login: 'Sign in',
-    loginGenspark: 'Sign in with Genspark',
+    loginGenspark: 'Sign in to Fynix',
     loggedIn: 'Signed in',
-    loggedInGenspark: 'Signed in to Genspark',
+    loggedInGenspark: 'Signed in to Fynix',
     waitingLogin: 'Waiting for browser sign-in… Click to relaunch the sign-in page',
     loginTimeout: 'Sign-in timed out — click to retry',
     loginLaunchFailed: 'Could not start sign-in — click to retry',
@@ -274,6 +275,7 @@ export const strings = {
     loginNetworkError: 'Cannot reach Genspark — check your network or proxy settings',
     loginExpired: 'Sign-in expired — click to retry',
     loginFailed: 'Sign-in failed — click to retry',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     waitingShort: 'Waiting…',
     loggingOut: 'Signing out…',
     logout: 'Sign out',
@@ -305,14 +307,14 @@ export const strings = {
     tabList: 'All tabs',
     newTab: 'New tab',
     // First-run onboarding
-    onbTitle1: 'Welcome to GenOffice',
+    onbTitle1: 'Welcome to fynixOffice',
     onbSubtitle1: 'The first open-source, AI-native office suite',
     onbBody1:
       'Create docs, build sheets, make slides, and review PDFs. AI is built into every step.',
     onbTitle2: 'This is just the beginning',
     onbBody2:
-      'GenOffice is still in alpha. Join the group chat on GenTeam to share feedback and help shape what comes next.',
-    onbCredits: 'Active contributors get **1,000+ Genspark credits**',
+      'fynixOffice is still in alpha. Join the group chat on GenTeam to share feedback and help shape what comes next.',
+    onbCredits: 'Join the Fynix community to share feedback and shape what comes next.',
     onbJoinGenTeam: 'Join GenTeam',
     onbSkip: 'Skip',
     onbNext: 'Next',
@@ -320,14 +322,14 @@ export const strings = {
     onbStepAria: 'Page {n} of {total}',
     onbTitle3: 'Free for everyone',
     onbBody3: 'No license fees. No ads. No watermarks.',
-    onbNote3: 'AI features may consume Genspark credits.',
+    onbNote3: 'AI features require signing in to Fynix.',
     onbBack: 'Back',
   },
   ja: {
     // Sidebar navigation
     navRecent: '最近使用',
     navStarred: 'お気に入り',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Web で Genspark AI を使って作成したプロジェクト。編集はブラウザで続行します。クリックで開きます。',
     cloudSearchPlaceholder: '{n} 件のプロジェクトを検索…',
@@ -433,9 +435,9 @@ export const strings = {
     accountGenspark: 'Genspark アカウント',
     account: 'アカウント',
     login: 'サインイン',
-    loginGenspark: 'Genspark アカウントでサインイン',
+    loginGenspark: 'Fynix でサインイン',
     loggedIn: 'サインイン済み',
-    loggedInGenspark: 'Genspark にサインイン済み',
+    loggedInGenspark: 'Fynix にサインイン済み',
     waitingLogin:
       'ブラウザーでのサインインを待っています… クリックするとサインインページを再表示します',
     waitingShort: 'サインイン待ち…',
@@ -448,6 +450,7 @@ export const strings = {
       'Genspark に接続できません。ネットワークまたはプロキシ設定を確認してください',
     loginExpired: 'サインインの有効期限が切れました。クリックして再試行',
     loginFailed: 'サインインに失敗しました。クリックして再試行',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'サインアウトしています…',
     logout: 'サインアウト',
     credits: 'クレジット',
@@ -480,13 +483,13 @@ export const strings = {
     tabList: 'すべてのタブ',
     newTab: '新しいタブ',
     // First-run onboarding
-    onbTitle1: 'GenOffice へようこそ',
+    onbTitle1: 'fynixOffice へようこそ',
     onbSubtitle1: '初のオープンソース AI ネイティブ Office スイート',
     onbBody1:
       '文書の作成、表計算、プレゼン作成、PDF のレビュー。あらゆるステップに AI が組み込まれています。',
     onbTitle2: 'これはまだ始まりにすぎません',
     onbBody2:
-      'GenOffice はまだアルファ版です。GenTeam のグループチャットに参加して、フィードバックを共有し、今後の開発を一緒に形作りましょう。',
+      'fynixOffice はまだアルファ版です。GenTeam のグループチャットに参加して、フィードバックを共有し、今後の開発を一緒に形作りましょう。',
     onbCredits: 'アクティブな貢献者への特典 **1,000+ Genspark クレジット**',
     onbJoinGenTeam: 'GenTeam に参加',
     onbSkip: 'スキップ',
@@ -502,7 +505,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: '최근 사용',
     navStarred: '즐겨찾기',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Genspark AI로 웹에서 만든 프로젝트입니다. 편집은 브라우저에서 계속됩니다. 프로젝트를 클릭하면 열립니다.',
     cloudSearchPlaceholder: '프로젝트 {n}개 검색…',
@@ -605,9 +608,9 @@ export const strings = {
     accountGenspark: 'Genspark 계정',
     account: '계정',
     login: '로그인',
-    loginGenspark: 'Genspark 계정으로 로그인',
+    loginGenspark: 'Fynix 계정으로 로그인',
     loggedIn: '로그인됨',
-    loggedInGenspark: 'Genspark에 로그인됨',
+    loggedInGenspark: 'Fynix에 로그인됨',
     waitingLogin: '브라우저 로그인을 기다리는 중… 클릭하면 로그인 페이지를 다시 엽니다',
     waitingShort: '로그인 대기 중…',
     loginTimeout: '로그인 시간이 초과되었습니다. 클릭하여 다시 시도',
@@ -618,6 +621,7 @@ export const strings = {
     loginNetworkError: 'Genspark에 연결할 수 없습니다. 네트워크 또는 프록시 설정을 확인하세요',
     loginExpired: '로그인이 만료되었습니다. 클릭하여 다시 시도',
     loginFailed: '로그인에 실패했습니다. 클릭하여 다시 시도',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: '로그아웃 중…',
     logout: '로그아웃',
     credits: '크레딧',
@@ -650,13 +654,13 @@ export const strings = {
     tabList: '모든 탭',
     newTab: '새 탭',
     // First-run onboarding
-    onbTitle1: 'GenOffice에 오신 것을 환영합니다',
+    onbTitle1: 'fynixOffice에 오신 것을 환영합니다',
     onbSubtitle1: '최초의 오픈소스 AI 네이티브 오피스 제품군',
     onbBody1:
       '문서 작성, 스프레드시트 제작, 프레젠테이션 생성, PDF 검토. 모든 단계에 AI가 녹아 있습니다.',
     onbTitle2: '이제 시작일 뿐입니다',
     onbBody2:
-      'GenOffice는 아직 알파 단계입니다. GenTeam 그룹 채팅에 참여해 피드백을 공유하고 앞으로의 방향을 함께 만들어 가세요.',
+      'fynixOffice는 아직 알파 단계입니다. GenTeam 그룹 채팅에 참여해 피드백을 공유하고 앞으로의 방향을 함께 만들어 가세요.',
     onbCredits: '활발한 기여자를 위한 혜택 **1,000+ Genspark 크레딧**',
     onbJoinGenTeam: 'GenTeam 참여하기',
     onbSkip: '건너뛰기',
@@ -672,7 +676,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: 'Récents',
     navStarred: 'Favoris',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       "Projets créés sur le web avec Genspark AI. L'édition continue dans votre navigateur — cliquez sur un projet pour l'ouvrir.",
     cloudSearchPlaceholder: 'Rechercher parmi {n} projets…',
@@ -778,9 +782,9 @@ export const strings = {
     accountGenspark: 'Compte Genspark',
     account: 'Compte',
     login: 'Se connecter',
-    loginGenspark: 'Se connecter avec Genspark',
+    loginGenspark: 'Se connecter à Fynix',
     loggedIn: 'Connecté',
-    loggedInGenspark: 'Connecté à Genspark',
+    loggedInGenspark: 'Connecté à Fynix',
     waitingLogin:
       'En attente de la connexion dans le navigateur… Cliquez pour rouvrir la page de connexion',
     waitingShort: 'En attente…',
@@ -793,6 +797,7 @@ export const strings = {
       'Impossible de joindre Genspark — vérifiez votre réseau ou vos paramètres de proxy',
     loginExpired: 'L’autorisation a expiré — cliquez pour réessayer',
     loginFailed: 'Échec de la connexion — cliquez pour réessayer',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Déconnexion…',
     logout: 'Se déconnecter',
     credits: 'Crédits',
@@ -825,13 +830,13 @@ export const strings = {
     tabList: 'Tous les onglets',
     newTab: 'Nouvel onglet',
     // First-run onboarding
-    onbTitle1: 'Bienvenue dans GenOffice',
+    onbTitle1: 'Bienvenue dans fynixOffice',
     onbSubtitle1: 'La première suite bureautique open source et native IA',
     onbBody1:
       'Créez des documents, des feuilles de calcul et des présentations, et relisez des PDF. L’IA est intégrée à chaque étape.',
     onbTitle2: 'Ce n’est qu’un début',
     onbBody2:
-      'GenOffice est encore en alpha. Rejoignez la discussion de groupe sur GenTeam pour partager vos retours et façonner la suite.',
+      'fynixOffice est encore en alpha. Rejoignez la discussion de groupe sur GenTeam pour partager vos retours et façonner la suite.',
     onbCredits: 'Les contributeurs actifs reçoivent **1 000+ crédits Genspark**',
     onbJoinGenTeam: 'Rejoindre GenTeam',
     onbSkip: 'Passer',
@@ -847,7 +852,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: 'Zuletzt verwendet',
     navStarred: 'Favoriten',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Mit Genspark AI im Web erstellte Projekte. Die Bearbeitung läuft im Browser weiter – klicken Sie auf ein Projekt, um es zu öffnen.',
     cloudSearchPlaceholder: '{n} Projekte durchsuchen…',
@@ -955,9 +960,9 @@ export const strings = {
     accountGenspark: 'Genspark-Konto',
     account: 'Konto',
     login: 'Anmelden',
-    loginGenspark: 'Mit Genspark anmelden',
+    loginGenspark: 'Bei Fynix anmelden',
     loggedIn: 'Angemeldet',
-    loggedInGenspark: 'Bei Genspark angemeldet',
+    loggedInGenspark: 'Bei Fynix angemeldet',
     waitingLogin:
       'Warten auf Anmeldung im Browser… Klicken Sie, um die Anmeldeseite erneut zu öffnen',
     waitingShort: 'Warten…',
@@ -970,6 +975,7 @@ export const strings = {
       'Genspark ist nicht erreichbar — prüfen Sie Netzwerk- oder Proxy-Einstellungen',
     loginExpired: 'Die Autorisierung ist abgelaufen — klicken Sie zum Wiederholen',
     loginFailed: 'Anmeldung fehlgeschlagen — klicken Sie zum Wiederholen',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Abmelden…',
     logout: 'Abmelden',
     credits: 'Credits',
@@ -1002,13 +1008,13 @@ export const strings = {
     tabList: 'Alle Tabs',
     newTab: 'Neuer Tab',
     // First-run onboarding
-    onbTitle1: 'Willkommen bei GenOffice',
+    onbTitle1: 'Willkommen bei fynixOffice',
     onbSubtitle1: 'Die erste quelloffene, KI-native Office-Suite',
     onbBody1:
       'Dokumente erstellen, Tabellen bauen, Präsentationen gestalten und PDFs prüfen. KI ist in jedem Schritt integriert.',
     onbTitle2: 'Das ist erst der Anfang',
     onbBody2:
-      'GenOffice ist noch in der Alpha-Phase. Treten Sie dem Gruppenchat auf GenTeam bei, um Feedback zu teilen und die Zukunft mitzugestalten.',
+      'fynixOffice ist noch in der Alpha-Phase. Treten Sie dem Gruppenchat auf GenTeam bei, um Feedback zu teilen und die Zukunft mitzugestalten.',
     onbCredits: 'Aktive Mitwirkende erhalten **1.000+ Genspark-Guthaben**',
     onbJoinGenTeam: 'GenTeam beitreten',
     onbSkip: 'Überspringen',
@@ -1024,7 +1030,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: 'Recientes',
     navStarred: 'Destacados',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Proyectos creados en la web con Genspark AI. La edición continúa en tu navegador: haz clic en un proyecto para abrirlo.',
     cloudSearchPlaceholder: 'Buscar entre {n} proyectos…',
@@ -1131,9 +1137,9 @@ export const strings = {
     accountGenspark: 'Cuenta de Genspark',
     account: 'Cuenta',
     login: 'Iniciar sesión',
-    loginGenspark: 'Iniciar sesión con Genspark',
+    loginGenspark: 'Iniciar sesión en Fynix',
     loggedIn: 'Sesión iniciada',
-    loggedInGenspark: 'Sesión iniciada en Genspark',
+    loggedInGenspark: 'Sesión iniciada en Fynix',
     waitingLogin:
       'Esperando el inicio de sesión en el navegador… Haga clic para volver a abrir la página de inicio de sesión',
     waitingShort: 'Esperando…',
@@ -1146,6 +1152,7 @@ export const strings = {
       'No se puede conectar con Genspark — compruebe su red o la configuración del proxy',
     loginExpired: 'La autorización ha caducado — haga clic para reintentar',
     loginFailed: 'Error al iniciar sesión — haga clic para reintentar',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Cerrando sesión…',
     logout: 'Cerrar sesión',
     credits: 'Créditos',
@@ -1178,13 +1185,13 @@ export const strings = {
     tabList: 'Todas las pestañas',
     newTab: 'Nueva pestaña',
     // First-run onboarding
-    onbTitle1: 'Bienvenido a GenOffice',
+    onbTitle1: 'Bienvenido a fynixOffice',
     onbSubtitle1: 'La primera suite ofimática de código abierto y nativa de IA',
     onbBody1:
       'Crea documentos, hojas de cálculo y presentaciones, y revisa PDF. La IA está integrada en cada paso.',
     onbTitle2: 'Esto es solo el comienzo',
     onbBody2:
-      'GenOffice aún está en alfa. Únete al chat grupal en GenTeam para compartir comentarios y ayudar a dar forma a lo que viene.',
+      'fynixOffice aún está en alfa. Únete al chat grupal en GenTeam para compartir comentarios y ayudar a dar forma a lo que viene.',
     onbCredits: 'Los colaboradores activos reciben **1.000+ créditos de Genspark**',
     onbJoinGenTeam: 'Unirse a GenTeam',
     onbSkip: 'Omitir',
@@ -1200,7 +1207,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: 'ล่าสุด',
     navStarred: 'รายการโปรด',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'โปรเจกต์ที่สร้างบนเว็บด้วย Genspark AI แก้ไขต่อได้ในเบราว์เซอร์ — คลิกโปรเจกต์เพื่อเปิด',
     cloudSearchPlaceholder: 'ค้นหา {n} โปรเจกต์…',
@@ -1316,6 +1323,7 @@ export const strings = {
     loginNetworkError: 'ไม่สามารถเชื่อมต่อ Genspark ได้ โปรดตรวจสอบเครือข่ายหรือการตั้งค่าพร็อกซี',
     loginExpired: 'การอนุญาตหมดอายุ — คลิกเพื่อลองอีกครั้ง',
     loginFailed: 'การลงชื่อเข้าใช้ล้มเหลว — คลิกเพื่อลองอีกครั้ง',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'กำลังออกจากระบบ…',
     logout: 'ออกจากระบบ',
     credits: 'เครดิต',
@@ -1348,12 +1356,12 @@ export const strings = {
     tabList: 'แท็บทั้งหมด',
     newTab: 'แท็บใหม่',
     // First-run onboarding
-    onbTitle1: 'ยินดีต้อนรับสู่ GenOffice',
+    onbTitle1: 'ยินดีต้อนรับสู่ fynixOffice',
     onbSubtitle1: 'ชุดโปรแกรมออฟฟิศ AI-native โอเพนซอร์สตัวแรก',
     onbBody1: 'สร้างเอกสาร ทำสเปรดชีต สร้างงานนำเสนอ และตรวจทาน PDF ทุกขั้นตอนมี AI ในตัว',
     onbTitle2: 'นี่เป็นเพียงจุดเริ่มต้น',
     onbBody2:
-      'GenOffice ยังอยู่ในช่วงอัลฟ่า เข้าร่วมแชทกลุ่มบน GenTeam เพื่อแบ่งปันความคิดเห็นและร่วมกำหนดทิศทางต่อไป',
+      'fynixOffice ยังอยู่ในช่วงอัลฟ่า เข้าร่วมแชทกลุ่มบน GenTeam เพื่อแบ่งปันความคิดเห็นและร่วมกำหนดทิศทางต่อไป',
     onbCredits: 'ผู้มีส่วนร่วมอย่างต่อเนื่องจะได้รับ **เครดิต Genspark กว่า 1,000**',
     onbJoinGenTeam: 'เข้าร่วม GenTeam',
     onbSkip: 'ข้าม',
@@ -1369,7 +1377,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: 'Terbaru',
     navStarred: 'Berbintang',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Proyek yang dibuat di web dengan Genspark AI. Pengeditan berlanjut di browser — klik proyek untuk membukanya.',
     cloudSearchPlaceholder: 'Cari {n} proyek…',
@@ -1487,6 +1495,7 @@ export const strings = {
       'Tidak dapat terhubung ke Genspark — periksa jaringan atau pengaturan proxy Anda',
     loginExpired: 'Otorisasi kedaluwarsa — klik untuk mencoba lagi',
     loginFailed: 'Login gagal — klik untuk mencoba lagi',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Keluar…',
     logout: 'Keluar',
     credits: 'Kredit',
@@ -1519,13 +1528,13 @@ export const strings = {
     tabList: 'Semua tab',
     newTab: 'Tab baru',
     // First-run onboarding
-    onbTitle1: 'Selamat datang di GenOffice',
+    onbTitle1: 'Selamat datang di fynixOffice',
     onbSubtitle1: 'Suite office open source AI-native pertama',
     onbBody1:
       'Buat dokumen, susun spreadsheet, rancang presentasi, dan tinjau PDF. AI hadir di setiap langkah.',
     onbTitle2: 'Ini baru permulaan',
     onbBody2:
-      'GenOffice masih dalam tahap alpha. Gabung obrolan grup di GenTeam untuk berbagi masukan dan ikut menentukan arah ke depan.',
+      'fynixOffice masih dalam tahap alpha. Gabung obrolan grup di GenTeam untuk berbagi masukan dan ikut menentukan arah ke depan.',
     onbCredits: 'Kontributor aktif mendapat **1.000+ kredit Genspark**',
     onbJoinGenTeam: 'Gabung GenTeam',
     onbSkip: 'Lewati',
@@ -1541,7 +1550,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: 'Недавние',
     navStarred: 'Избранное',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Проекты, созданные в вебе с Genspark AI. Редактирование продолжается в браузере — нажмите на проект, чтобы открыть его.',
     cloudSearchPlaceholder: 'Поиск среди {n} проектов…',
@@ -1659,6 +1668,7 @@ export const strings = {
     loginNetworkError: 'Не удаётся подключиться к Genspark — проверьте сеть или настройки прокси',
     loginExpired: 'Срок авторизации истёк — нажмите, чтобы повторить',
     loginFailed: 'Не удалось войти — нажмите, чтобы повторить',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Выход…',
     logout: 'Выйти',
     credits: 'Кредиты',
@@ -1691,13 +1701,13 @@ export const strings = {
     tabList: 'Все вкладки',
     newTab: 'Новая вкладка',
     // First-run onboarding
-    onbTitle1: 'Добро пожаловать в GenOffice',
+    onbTitle1: 'Добро пожаловать в fynixOffice',
     onbSubtitle1: 'Первый открытый AI-нативный офисный пакет',
     onbBody1:
       'Создавайте документы, таблицы и презентации, работайте с PDF. ИИ встроен в каждый шаг.',
     onbTitle2: 'Это только начало',
     onbBody2:
-      'GenOffice пока в альфа-версии. Присоединяйтесь к групповому чату в GenTeam, чтобы делиться отзывами и влиять на дальнейшее развитие.',
+      'fynixOffice пока в альфа-версии. Присоединяйтесь к групповому чату в GenTeam, чтобы делиться отзывами и влиять на дальнейшее развитие.',
     onbCredits: 'Активные участники получают **1000+ кредитов Genspark**',
     onbJoinGenTeam: 'Присоединиться к GenTeam',
     onbSkip: 'Пропустить',
@@ -1713,7 +1723,7 @@ export const strings = {
     // Sidebar navigation
     navRecent: 'الأخيرة',
     navStarred: 'المفضلة',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'مشاريع أُنشئت على الويب باستخدام Genspark AI. يستمر التحرير في المتصفح — انقر على أي مشروع لفتحه.',
     cloudSearchPlaceholder: 'ابحث في {n} مشروعًا…',
@@ -1829,6 +1839,7 @@ export const strings = {
     loginNetworkError: 'تعذّر الاتصال بـ Genspark — تحقق من الشبكة أو إعدادات الوكيل',
     loginExpired: 'انتهت صلاحية التفويض — انقر لإعادة المحاولة',
     loginFailed: 'فشل تسجيل الدخول — انقر لإعادة المحاولة',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'جارٍ تسجيل الخروج…',
     logout: 'تسجيل الخروج',
     credits: 'الأرصدة',
@@ -1861,13 +1872,13 @@ export const strings = {
     tabList: 'كل علامات التبويب',
     newTab: 'علامة تبويب جديدة',
     // First-run onboarding
-    onbTitle1: 'مرحبًا بك في GenOffice',
+    onbTitle1: 'مرحبًا بك في fynixOffice',
     onbSubtitle1: 'أول حزمة مكتبية مفتوحة المصدر وأصيلة في الذكاء الاصطناعي',
     onbBody1:
       'أنشئ المستندات وجداول البيانات والعروض التقديمية وراجع ملفات PDF. الذكاء الاصطناعي مدمج في كل خطوة.',
     onbTitle2: 'هذه مجرد البداية',
     onbBody2:
-      'لا يزال GenOffice في مرحلة ألفا. انضم إلى الدردشة الجماعية على GenTeam لمشاركة ملاحظاتك والمساهمة في تشكيل المستقبل.',
+      'لا يزال fynixOffice في مرحلة ألفا. انضم إلى الدردشة الجماعية على GenTeam لمشاركة ملاحظاتك والمساهمة في تشكيل المستقبل.',
     onbCredits: 'يحصل المساهمون النشطون على **+1,000 من أرصدة Genspark**',
     onbJoinGenTeam: 'الانضمام إلى GenTeam',
     onbSkip: 'تخطي',
@@ -1882,7 +1893,7 @@ export const strings = {
   pt: {
     navRecent: 'Recentes',
     navStarred: 'Favoritos',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Projetos criados na web com o Genspark AI. A edição continua no navegador — clique em um projeto para abri-lo.',
     cloudSearchPlaceholder: 'Pesquisar {n} projetos…',
@@ -1994,6 +2005,7 @@ export const strings = {
       'Não foi possível conectar ao Genspark — verifique sua rede ou as configurações de proxy',
     loginExpired: 'A autorização expirou — clique para tentar novamente',
     loginFailed: 'Falha no login — clique para tentar novamente',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Saindo…',
     logout: 'Sair',
     credits: 'Créditos',
@@ -2024,13 +2036,13 @@ export const strings = {
     tabList: 'Todas as guias',
     newTab: 'Nova guia',
     // First-run onboarding
-    onbTitle1: 'Bem-vindo ao GenOffice',
+    onbTitle1: 'Bem-vindo ao fynixOffice',
     onbSubtitle1: 'A primeira suíte de escritório open source e nativa de IA',
     onbBody1:
       'Crie documentos, planilhas e apresentações e revise PDFs. A IA está integrada em cada etapa.',
     onbTitle2: 'Isto é só o começo',
     onbBody2:
-      'O GenOffice ainda está em alfa. Entre no chat em grupo no GenTeam para compartilhar feedback e ajudar a moldar o que vem a seguir.',
+      'O fynixOffice ainda está em alfa. Entre no chat em grupo no GenTeam para compartilhar feedback e ajudar a moldar o que vem a seguir.',
     onbCredits: 'Contribuidores ativos recebem **1.000+ créditos Genspark**',
     onbJoinGenTeam: 'Entrar no GenTeam',
     onbSkip: 'Pular',
@@ -2045,7 +2057,7 @@ export const strings = {
   it: {
     navRecent: 'Recenti',
     navStarred: 'Preferiti',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Progetti creati sul web con Genspark AI. La modifica continua nel browser: fai clic su un progetto per aprirlo.',
     cloudSearchPlaceholder: 'Cerca tra {n} progetti…',
@@ -2157,6 +2169,7 @@ export const strings = {
       'Impossibile raggiungere Genspark — controlla la rete o le impostazioni del proxy',
     loginExpired: 'Autorizzazione scaduta — fai clic per riprovare',
     loginFailed: 'Accesso non riuscito — fai clic per riprovare',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Disconnessione…',
     logout: 'Esci',
     credits: 'Crediti',
@@ -2187,13 +2200,13 @@ export const strings = {
     tabList: 'Tutte le schede',
     newTab: 'Nuova scheda',
     // First-run onboarding
-    onbTitle1: 'Benvenuto in GenOffice',
+    onbTitle1: 'Benvenuto in fynixOffice',
     onbSubtitle1: 'La prima suite per ufficio open source e nativa per l’IA',
     onbBody1:
       'Crea documenti, fogli di calcolo e presentazioni e rivedi i PDF. L’IA è integrata in ogni passaggio.',
     onbTitle2: 'Questo è solo l’inizio',
     onbBody2:
-      'GenOffice è ancora in alpha. Unisciti alla chat di gruppo su GenTeam per condividere feedback e contribuire a plasmare il futuro.',
+      'fynixOffice è ancora in alpha. Unisciti alla chat di gruppo su GenTeam per condividere feedback e contribuire a plasmare il futuro.',
     onbCredits: 'I collaboratori attivi ricevono **1.000+ crediti Genspark**',
     onbJoinGenTeam: 'Unisciti a GenTeam',
     onbSkip: 'Salta',
@@ -2208,7 +2221,7 @@ export const strings = {
   pl: {
     navRecent: 'Ostatnie',
     navStarred: 'Ulubione',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Projekty utworzone w sieci za pomocą Genspark AI. Edycja jest kontynuowana w przeglądarce — kliknij projekt, aby go otworzyć.',
     cloudSearchPlaceholder: 'Szukaj wśród {n} projektów…',
@@ -2319,6 +2332,7 @@ export const strings = {
     loginNetworkError: 'Nie można połączyć się z Genspark — sprawdź sieć lub ustawienia proxy',
     loginExpired: 'Autoryzacja wygasła — kliknij, aby spróbować ponownie',
     loginFailed: 'Logowanie nie powiodło się — kliknij, aby spróbować ponownie',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Wylogowywanie…',
     logout: 'Wyloguj się',
     credits: 'Kredyty',
@@ -2349,13 +2363,13 @@ export const strings = {
     tabList: 'Wszystkie karty',
     newTab: 'Nowa karta',
     // First-run onboarding
-    onbTitle1: 'Witamy w GenOffice',
+    onbTitle1: 'Witamy w fynixOffice',
     onbSubtitle1: 'Pierwszy otwartoźródłowy, natywnie oparty na AI pakiet biurowy',
     onbBody1:
       'Twórz dokumenty, arkusze i prezentacje oraz przeglądaj pliki PDF. AI jest wbudowana w każdy etap.',
     onbTitle2: 'To dopiero początek',
     onbBody2:
-      'GenOffice jest wciąż w fazie alfa. Dołącz do czatu grupowego na GenTeam, aby dzielić się opiniami i współtworzyć jego przyszłość.',
+      'fynixOffice jest wciąż w fazie alfa. Dołącz do czatu grupowego na GenTeam, aby dzielić się opiniami i współtworzyć jego przyszłość.',
     onbCredits: 'Aktywni współtwórcy otrzymują **1000+ kredytów Genspark**',
     onbJoinGenTeam: 'Dołącz do GenTeam',
     onbSkip: 'Pomiń',
@@ -2370,7 +2384,7 @@ export const strings = {
   nl: {
     navRecent: 'Recent',
     navStarred: 'Favorieten',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Projecten gemaakt op het web met Genspark AI. Bewerken gaat verder in je browser — klik op een project om het te openen.',
     cloudSearchPlaceholder: 'Zoek in {n} projecten…',
@@ -2482,6 +2496,7 @@ export const strings = {
     loginNetworkError: 'Kan Genspark niet bereiken — controleer uw netwerk of proxyinstellingen',
     loginExpired: 'Autorisatie verlopen — klik om het opnieuw te proberen',
     loginFailed: 'Inloggen mislukt — klik om het opnieuw te proberen',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Uitloggen…',
     logout: 'Uitloggen',
     credits: 'Credits',
@@ -2512,13 +2527,13 @@ export const strings = {
     tabList: 'Alle tabbladen',
     newTab: 'Nieuw tabblad',
     // First-run onboarding
-    onbTitle1: 'Welkom bij GenOffice',
+    onbTitle1: 'Welkom bij fynixOffice',
     onbSubtitle1: 'De eerste open source, AI-native officesuite',
     onbBody1:
       'Maak documenten, bouw spreadsheets, maak presentaties en beoordeel PDF-bestanden. AI zit in elke stap ingebouwd.',
     onbTitle2: 'Dit is nog maar het begin',
     onbBody2:
-      'GenOffice is nog in alfa. Doe mee aan de groepschat op GenTeam om feedback te delen en mee te bepalen wat er komt.',
+      'fynixOffice is nog in alfa. Doe mee aan de groepschat op GenTeam om feedback te delen en mee te bepalen wat er komt.',
     onbCredits: 'Actieve bijdragers krijgen **1.000+ Genspark-credits**',
     onbJoinGenTeam: 'Word lid van GenTeam',
     onbSkip: 'Overslaan',
@@ -2533,7 +2548,7 @@ export const strings = {
   ms: {
     navRecent: 'Terkini',
     navStarred: 'Berbintang',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Projek yang dicipta di web dengan Genspark AI. Penyuntingan diteruskan dalam pelayar — klik projek untuk membukanya.',
     cloudSearchPlaceholder: 'Cari {n} projek…',
@@ -2644,6 +2659,7 @@ export const strings = {
       'Tidak dapat menyambung ke Genspark — semak rangkaian atau tetapan proksi anda',
     loginExpired: 'Kebenaran telah tamat tempoh — klik untuk cuba lagi',
     loginFailed: 'Log masuk gagal — klik untuk cuba lagi',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'Sedang log keluar…',
     logout: 'Log keluar',
     credits: 'Kredit',
@@ -2674,13 +2690,13 @@ export const strings = {
     tabList: 'Semua tab',
     newTab: 'Tab baharu',
     // First-run onboarding
-    onbTitle1: 'Selamat datang ke GenOffice',
+    onbTitle1: 'Selamat datang ke fynixOffice',
     onbSubtitle1: 'Suite pejabat sumber terbuka natif AI yang pertama',
     onbBody1:
       'Cipta dokumen, bina hamparan, hasilkan persembahan dan semak PDF. AI tersedia pada setiap langkah.',
     onbTitle2: 'Ini baru permulaan',
     onbBody2:
-      'GenOffice masih dalam peringkat alfa. Sertai sembang kumpulan di GenTeam untuk berkongsi maklum balas dan membentuk masa depannya.',
+      'fynixOffice masih dalam peringkat alfa. Sertai sembang kumpulan di GenTeam untuk berkongsi maklum balas dan membentuk masa depannya.',
     onbCredits: 'Penyumbang aktif menerima **1,000+ kredit Genspark**',
     onbJoinGenTeam: 'Sertai GenTeam',
     onbSkip: 'Langkau',
@@ -2695,7 +2711,7 @@ export const strings = {
   he: {
     navRecent: 'אחרונים',
     navStarred: 'מועדפים',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'פרויקטים שנוצרו באינטרנט עם Genspark AI. העריכה נמשכת בדפדפן — לחצו על פרויקט כדי לפתוח אותו.',
     cloudSearchPlaceholder: 'חיפוש בין {n} פרויקטים…',
@@ -2803,6 +2819,7 @@ export const strings = {
     loginNetworkError: 'לא ניתן להתחבר ל-Genspark — בדקו את הרשת או את הגדרות ה-proxy',
     loginExpired: 'תוקף ההרשאה פג — לחצו כדי לנסות שוב',
     loginFailed: 'ההתחברות נכשלה — לחצו כדי לנסות שוב',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'מתנתק…',
     logout: 'התנתקות',
     credits: 'קרדיטים',
@@ -2833,12 +2850,12 @@ export const strings = {
     tabList: 'כל הכרטיסיות',
     newTab: 'כרטיסייה חדשה',
     // First-run onboarding
-    onbTitle1: 'ברוכים הבאים ל-GenOffice',
+    onbTitle1: 'ברוכים הבאים ל-fynixOffice',
     onbSubtitle1: 'חבילת המשרד הראשונה בקוד פתוח שהיא AI-נייטיב',
     onbBody1: 'צרו מסמכים, בנו גיליונות, הכינו מצגות ובדקו קובצי PDF. ה-AI מובנה בכל שלב.',
     onbTitle2: 'זו רק ההתחלה',
     onbBody2:
-      'GenOffice עדיין בגרסת אלפא. הצטרפו לצ׳אט הקבוצתי ב-GenTeam כדי לשתף משוב ולעזור לעצב את ההמשך.',
+      'fynixOffice עדיין בגרסת אלפא. הצטרפו לצ׳אט הקבוצתי ב-GenTeam כדי לשתף משוב ולעזור לעצב את ההמשך.',
     onbCredits: 'תורמים פעילים מקבלים **1,000+ נקודות Genspark**',
     onbJoinGenTeam: 'הצטרפו ל-GenTeam',
     onbSkip: 'דילוג',
@@ -2853,7 +2870,7 @@ export const strings = {
   hi: {
     navRecent: 'हाल के',
     navStarred: 'तारांकित',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle:
       'Genspark AI के साथ वेब पर बनाए गए प्रोजेक्ट। संपादन ब्राउज़र में जारी रहता है — खोलने के लिए किसी प्रोजेक्ट पर क्लिक करें।',
     cloudSearchPlaceholder: '{n} प्रोजेक्ट खोजें…',
@@ -2965,6 +2982,7 @@ export const strings = {
     loginNetworkError: 'Genspark से कनेक्ट नहीं हो सका — नेटवर्क या प्रॉक्सी सेटिंग जांचें',
     loginExpired: 'प्राधिकरण की समय सीमा समाप्त — पुनः प्रयास के लिए क्लिक करें',
     loginFailed: 'साइन इन विफल — पुनः प्रयास के लिए क्लिक करें',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: 'साइन आउट हो रहा है…',
     logout: 'साइन आउट करें',
     credits: 'क्रेडिट',
@@ -2995,13 +3013,13 @@ export const strings = {
     tabList: 'सभी टैब',
     newTab: 'नया टैब',
     // First-run onboarding
-    onbTitle1: 'GenOffice में आपका स्वागत है',
+    onbTitle1: 'fynixOffice में आपका स्वागत है',
     onbSubtitle1: 'पहला ओपन-सोर्स, AI-नेटिव ऑफ़िस सुइट',
     onbBody1:
       'दस्तावेज़ बनाएँ, स्प्रेडशीट तैयार करें, प्रस्तुतियाँ बनाएँ और PDF की समीक्षा करें। AI हर चरण में शामिल है।',
     onbTitle2: 'यह तो बस शुरुआत है',
     onbBody2:
-      'GenOffice अभी अल्फ़ा में है। GenTeam पर ग्रुप चैट से जुड़ें, फ़ीडबैक साझा करें और आगे की दिशा तय करने में मदद करें।',
+      'fynixOffice अभी अल्फ़ा में है। GenTeam पर ग्रुप चैट से जुड़ें, फ़ीडबैक साझा करें और आगे की दिशा तय करने में मदद करें।',
     onbCredits: 'सक्रिय योगदानकर्ताओं के लिए **1,000+ Genspark क्रेडिट**',
     onbJoinGenTeam: 'GenTeam से जुड़ें',
     onbSkip: 'छोड़ें',
@@ -3016,7 +3034,7 @@ export const strings = {
   'zh-TW': {
     navRecent: '最近',
     navStarred: '收藏',
-    navCloud: 'Genspark Projects',
+    navCloud: 'Cloud Projects',
     cloudSubtitle: '在網頁端用 Genspark AI 建立的專案。編輯在瀏覽器中繼續——點擊任意專案即可開啟。',
     cloudSearchPlaceholder: '搜尋 {n} 個專案…',
     cloudNoResults: '沒有符合的專案。',
@@ -3122,6 +3140,7 @@ export const strings = {
     loginNetworkError: '無法連線至 Genspark，請檢查網路或代理設定',
     loginExpired: '登入已過期，點按重試',
     loginFailed: '登入失敗，點按重試',
+    loginDenied: 'Your account is not assigned fynixOffice access. Ask your administrator.',
     loggingOut: '正在登出…',
     logout: '登出',
     credits: '點數',
@@ -3152,11 +3171,11 @@ export const strings = {
     tabList: '全部分頁',
     newTab: '新分頁',
     // First-run onboarding
-    onbTitle1: '歡迎使用 GenOffice',
+    onbTitle1: '歡迎使用 fynixOffice',
     onbSubtitle1: '第一個開源的 AI 原生 Office 套件',
     onbBody1: '建立文件、製作試算表、產生簡報、審閱 PDF。AI 深度融入每個環節。',
     onbTitle2: '這只是一個開始',
-    onbBody2: 'GenOffice 目前仍在 alpha 階段。歡迎加入 GenTeam 群聊，分享回饋，一起打造它的未來。',
+    onbBody2: 'fynixOffice 目前仍在 alpha 階段。歡迎加入 GenTeam 群聊，分享回饋，一起打造它的未來。',
     onbCredits: '活躍貢獻者可獲得 **1,000+ Genspark 點數**',
     onbJoinGenTeam: '加入 GenTeam',
     onbSkip: '略過',

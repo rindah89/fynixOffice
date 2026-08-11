@@ -16,7 +16,7 @@ import type {
   ShapeRenderNode,
   PictureRenderNode,
   GlyphRun,
-} from '@genoffice/pptx-render'
+} from '@fynixoffice/pptx-render'
 import { classifyCjkScript } from '../shared/cjk-script'
 
 /** Konva fill attributes (for Rect/Path/Text). */

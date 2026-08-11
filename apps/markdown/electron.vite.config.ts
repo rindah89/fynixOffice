@@ -19,12 +19,12 @@ const TIPTAP_DEDUPE = [
 ]
 
 export default defineConfig({
-  // @genoffice/i18n and @genoffice/electron-utils ship as TS source — must be bundled
+  // @fynixoffice/i18n and @fynixoffice/electron-utils ship as TS source — must be bundled
   main: {
-    plugins: [externalizeDepsPlugin({ exclude: ['@genoffice/i18n', '@genoffice/electron-utils'] })],
+    plugins: [externalizeDepsPlugin({ exclude: ['@fynixoffice/i18n', '@fynixoffice/electron-utils'] })],
   },
   preload: {
-    plugins: [externalizeDepsPlugin({ exclude: ['@genoffice/i18n'] })],
+    plugins: [externalizeDepsPlugin({ exclude: ['@fynixoffice/i18n'] })],
   },
   renderer: {
     plugins: [react()],

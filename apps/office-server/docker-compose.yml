@@ -1,0 +1,85 @@
+# fynixOffice server as a Fynix suite service.
+#
+# Prerequisites (once per host):
+#   sh /path/to/scripts/ensure-fynix-suite-network.sh
+#
+# From monorepo root (or this directory with context adjusted):
+#   docker compose -f apps/office-server/docker-compose.yml --env-file apps/office-server/.env.docker up -d --build
+#
+# Public URL (set OFFICE_BASE_URL) must match the edge proxy host, e.g.
+#   https://office.fynixhq.com
+# Desktop clients set OFFICE_SERVER_URL to that same public base.
+
+name: fynixoffice
+
+services:
+  office-api:
+    build:
+      context: ../..
+      dockerfile: apps/office-server/Dockerfile
+    image: fynixoffice-server:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "4321"
+      OFFICE_BASE_URL: ${OFFICE_BASE_URL:-https://office.fynixhq.com}
+      OFFICE_OIDC_ISSUER: ${OFFICE_OIDC_ISSUER:-https://auth.fynixhq.com/realms/fynix}
+      OFFICE_OIDC_CLIENT_ID: ${OFFICE_OIDC_CLIENT_ID:-fynix-office}
+      OFFICE_OIDC_CLIENT_SECRET: ${OFFICE_OIDC_CLIENT_SECRET:?set OFFICE_OIDC_CLIENT_SECRET}
+      OFFICE_SESSION_TTL_SECONDS: ${OFFICE_SESSION_TTL_SECONDS:-28800}
+      OFFICE_REDIS_URL: redis://office-redis:6379/0
+      OFFICE_LLM_PROVIDER: ${OFFICE_LLM_PROVIDER:-anthropic}
+      OFFICE_LLM_API_KEY: ${OFFICE_LLM_API_KEY:-}
+      OFFICE_LLM_MODEL: ${OFFICE_LLM_MODEL:-}
+      OFFICE_LLM_BASE_URL: ${OFFICE_LLM_BASE_URL:-}
+      OFFICE_OPEN_SERVICE_KEY: ${OFFICE_OPEN_SERVICE_KEY:?set OFFICE_OPEN_SERVICE_KEY}
+    ports:
+      # Loopback only — terminate TLS on the suite edge proxy (Caddy), same pattern as HQ
+      - "127.0.0.1:4321:4321"
+    depends_on:
+      office-redis:
+        condition: service_healthy
+    networks:
+      default:
+        aliases:
+          - office-api
+          - fynixoffice
+      suite:
+        aliases:
+          - office-api
+          - fynixoffice
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4321/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  office-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "yes"]
+    volumes:
+      - office-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - default
+
+volumes:
+  office-redis:
+
+networks:
+  default:
+  suite:
+    external: true
+    name: fynix-suite

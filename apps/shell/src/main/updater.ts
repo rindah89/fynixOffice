@@ -2,7 +2,7 @@ import { app, shell } from 'electron'
 import type { BrowserWindow } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import type { UpdateInfo } from 'electron-updater'
-import { createI18n, getUiLang, htmlLang } from '@genoffice/i18n'
+import { createI18n, getUiLang, htmlLang } from '@fynixoffice/i18n'
 import type { UpdateChannel, UpdateUiState, UpdateUiStrings } from '../shared/update-api'
 import {
   closeUpdateWindow,
@@ -18,7 +18,7 @@ import {
  * the update channel prefix (production builds only). The packaged app reads
  * that URL from resources/app-update.yml, which electron-builder bakes in
  * from the `publish` config in apps/shell/electron-builder.cjs — the URL
- * itself is injected at build time via the GENOFFICE_UPDATE_URL env var and
+ * itself is injected at build time via the FYNIXOFFICE_UPDATE_URL env var and
  * is intentionally not committed to the repo.
  *
  * UX is the strong-guidance modal card (update-window.ts), not a native
@@ -29,7 +29,7 @@ import {
  * replaces the .AppImage file in place, no root needed); deb installs have
  * no updater — users upgrade via `apt install ./<new>.deb`.
  *
- * Dev preview: GENOFFICE_FAKE_UPDATE=<version> in an unpacked run opens the
+ * Dev preview: FYNIXOFFICE_FAKE_UPDATE=<version> in an unpacked run opens the
  * window with a simulated download so the UI can be exercised end to end.
  */
 
@@ -322,7 +322,7 @@ const RECHECK_INTERVAL_MS = 4 * 60 * 60 * 1000
 // code-signing identity (Apple Team ID) change, which Squirrel.Mac rejects
 // on every retry while the error looks like a download failure to the user.
 const MANUAL_FALLBACK_AFTER = 2
-const DOWNLOAD_PAGE_URL = 'https://github.com/genspark-ai/genoffice/releases/latest'
+const DOWNLOAD_PAGE_URL = 'https://github.com/rindah89/fynixOffice/releases/latest'
 
 let started = false
 // version the user declined this session — don't nag again until next launch
@@ -387,8 +387,8 @@ export function initAutoUpdater(
   started = true
 
   // dev preview of the update window with a simulated download
-  if (!app.isPackaged && process.env.GENOFFICE_FAKE_UPDATE) {
-    initFakeUpdate(getWindow, process.env.GENOFFICE_FAKE_UPDATE)
+  if (!app.isPackaged && process.env.FYNIXOFFICE_FAKE_UPDATE) {
+    initFakeUpdate(getWindow, process.env.FYNIXOFFICE_FAKE_UPDATE)
     return
   }
   // Unpacked runs have no app-update.yml and must not hit the CDN with a

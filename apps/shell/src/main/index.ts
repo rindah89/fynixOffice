@@ -34,7 +34,7 @@ import menuMdIcon1x from './assets/menu-md.png?asset'
 import menuMdIcon2x from './assets/menu-md@2x.png?asset'
 import menuHomeIcon1x from './assets/menu-home.png?asset'
 import menuHomeIcon2x from './assets/menu-home@2x.png?asset'
-import { createI18n, isLang, normalizeLang, setUiLang, type Lang } from '@genoffice/i18n'
+import { createI18n, isLang, normalizeLang, setUiLang, type Lang } from '@fynixoffice/i18n'
 import {
   DEFAULT_SAVE_DIR_KEY,
   appMenuLabels,
@@ -46,7 +46,7 @@ import {
   showOpenDialogWithMemory,
   showSaveDialogWithMemory,
   windowMenuTemplate,
-} from '@genoffice/electron-utils'
+} from '@fynixoffice/electron-utils'
 import { readAppSettings, writeAppSetting } from './app-settings'
 import {
   clearCloudProjectsStore,
@@ -54,18 +54,16 @@ import {
   readCloudProjectsStore,
   syncCloudProjects,
 } from './cloud-projects'
-import { ProjectStore } from '@genoffice/project-store'
+import { ProjectStore } from '@fynixoffice/project-store'
+import { gskConvertPdfToDocx, setGskProxyUrl } from '@fynixoffice/ai-search'
 import {
-  ensureGenofficeLogin,
-  genofficeLogout,
-  gskConvertPdfToDocx,
-  gskLoginInfo,
-  hasGskAuth,
-  loadGenofficeAuth,
-  resolveGskEntry,
-  setGskProxyUrl,
-  startGenofficeLogin,
-} from '@genoffice/ai-search'
+  ensureSuiteLogin,
+  startSuiteLogin,
+  suiteAccountStatus,
+  suiteLogout,
+  suiteSessionToken,
+} from '@fynixoffice/suite-auth'
+import { extractSuiteOpenUrl, materializeSuiteOpen } from './suite-open'
 
 import {
   buildDocsMenu,
@@ -156,7 +154,7 @@ import { applyUpdateChannel, initAutoUpdater } from './updater'
 import { isUpdateChannel, type UpdateChannel } from '../shared/update-api'
 
 /**
- * GenOffice unified shell: ONE Electron app, ONE BrowserWindow, hosting the
+ * fynixOffice unified shell: ONE Electron app, ONE BrowserWindow, hosting the
  * docs and sheets modules as WebContentsView tabs behind a WPS-style tab
  * strip. The shell owns the lifecycle — single-instance lock, file-
  * association routing by extension, and per-active-tab menu switching.
@@ -166,16 +164,16 @@ import { isUpdateChannel, type UpdateChannel } from '../shared/update-api'
 
 // ANY unpacked run (`npm run shell`, `npm run dev`, `npx electron .`) must not
 // share the installed app's userData or single-instance lock — otherwise a dev
-// run silently quits and forwards its argv to the running installed GenOffice.
-// GENOFFICE_USER_DATA: test drivers point this at a scratch dir so an
+// run silently quits and forwards its argv to the running installed fynixOffice.
+// FYNIXOFFICE_USER_DATA: test drivers point this at a scratch dir so an
 // automated instance can run alongside the dev instance (separate lock).
 if (!app.isPackaged)
   app.setPath(
     'userData',
-    process.env.GENOFFICE_USER_DATA ?? join(app.getPath('appData'), 'GenOffice Dev'),
+    process.env.FYNIXOFFICE_USER_DATA ?? join(app.getPath('appData'), 'fynixOffice Dev'),
   )
 
-// The product rename from "AI Office" to GenOffice changed the userData path; migrate old user data once
+// The product rename from "AI Office" to fynixOffice changed the userData path; migrate old user data once
 if (app.isPackaged) {
   const oldDir = join(app.getPath('appData'), 'AI Office')
   const newDir = app.getPath('userData')
@@ -236,7 +234,7 @@ configureMarkdownRuntime({
 
 // ---- UI language ----
 // Persisted in userData/app-settings.json so the editor modules can read the
-// same file when they pick up i18n later. GENOFFICE_LANG overrides for tests.
+// same file when they pick up i18n later. FYNIXOFFICE_LANG overrides for tests.
 
 const APP_SETTINGS_PATH = () => join(app.getPath('userData'), 'app-settings.json')
 
@@ -244,8 +242,8 @@ let uiLang: Lang | null = null
 
 function currentLang(): Lang {
   if (uiLang) return uiLang
-  if (process.env.GENOFFICE_LANG) {
-    uiLang = normalizeLang(process.env.GENOFFICE_LANG)
+  if (process.env.FYNIXOFFICE_LANG) {
+    uiLang = normalizeLang(process.env.FYNIXOFFICE_LANG)
     setUiLang(uiLang)
     return uiLang
   }
@@ -282,13 +280,11 @@ function currentTheme(): UiTheme {
 
 // ---- first-run onboarding ----
 // The GenTeam community page opened from the onboarding's second slide.
-// Stable short link served by the genoffice.ai site; it 302s to the tokened
+// Stable short link served by the fynixoffice.ai site; it 302s to the tokened
 // invite link, which stays out of this repo and rotates server-side.
-const GENTEAM_URL = 'https://genoffice.ai/join'
+const GENTEAM_URL = 'https://fynixoffice.ai/join'
 
-// Genspark credit-usage page opened from the account menu's credits row.
 // Kept main-side so the renderer never supplies the URL.
-const CREDIT_USAGE_URL = 'https://www.genspark.ai/credit-usage'
 
 const tMain = createI18n({
   zh: {
@@ -383,7 +379,7 @@ const tMain = createI18n({
     menuHelp: 'Help',
     thirdPartyNotices: 'Third-Party Notices',
     menuExportDocx: 'Export as Word…',
-    pdfDocxLoginMsg: 'Exporting as Word requires signing in to Genspark.',
+    pdfDocxLoginMsg: 'Exporting as Word requires signing in to Fynix.',
     pdfDocxLoginDetail:
       'Clicking “Sign In” opens your browser to authorize; once done, click Export again.',
     pdfDocxBtnLogin: 'Sign In',
@@ -395,7 +391,7 @@ const tMain = createI18n({
     btnCancel: 'Cancel',
     pdfDocxFailedMsg: 'Export as Word failed',
     pdfDocxNoCliMsg:
-      'Cannot sign in to Genspark: a required component (gsk) is missing. Please reinstall the app.',
+      'Cannot sign in to Fynix: a required component (gsk) is missing. Please reinstall the app.',
     pdfDocxBusyMsg: 'A Word export is already in progress. Please wait for it to finish.',
     dlgPickSaveDir: 'Choose Default Save Location',
     errSaveDirUnusable:
@@ -553,7 +549,7 @@ const tMain = createI18n({
     menuHelp: 'Aide',
     thirdPartyNotices: 'Mentions relatives aux logiciels tiers',
     menuExportDocx: 'Exporter en Word…',
-    pdfDocxLoginMsg: "L'export en Word nécessite une connexion à Genspark.",
+    pdfDocxLoginMsg: "L'export en Word nécessite une connexion à Fynix.",
     pdfDocxLoginDetail:
       "Cliquez sur « Se connecter » pour autoriser dans le navigateur, puis relancez l'export.",
     pdfDocxBtnLogin: 'Se connecter',
@@ -667,7 +663,7 @@ const tMain = createI18n({
     menuHelp: 'Ayuda',
     thirdPartyNotices: 'Avisos de software de terceros',
     menuExportDocx: 'Exportar como Word…',
-    pdfDocxLoginMsg: 'Para exportar como Word es necesario iniciar sesión en Genspark.',
+    pdfDocxLoginMsg: 'Para exportar como Word es necesario iniciar sesión en Fynix.',
     pdfDocxLoginDetail:
       'Al hacer clic en «Iniciar sesión» se abrirá el navegador para autorizar; después, vuelve a hacer clic en Exportar.',
     pdfDocxBtnLogin: 'Iniciar sesión',
@@ -779,7 +775,7 @@ const tMain = createI18n({
     menuHelp: 'Bantuan',
     thirdPartyNotices: 'Pemberitahuan Perangkat Lunak Pihak Ketiga',
     menuExportDocx: 'Ekspor sebagai Word…',
-    pdfDocxLoginMsg: 'Ekspor sebagai Word memerlukan login ke Genspark.',
+    pdfDocxLoginMsg: 'Ekspor sebagai Word memerlukan login ke Fynix.',
     pdfDocxLoginDetail:
       'Klik “Masuk” untuk membuka browser dan memberi otorisasi; setelah selesai, klik Ekspor lagi.',
     pdfDocxBtnLogin: 'Masuk',
@@ -836,7 +832,7 @@ const tMain = createI18n({
     menuHelp: 'Справка',
     thirdPartyNotices: 'Уведомления о стороннем ПО',
     menuExportDocx: 'Экспортировать в Word…',
-    pdfDocxLoginMsg: 'Для экспорта в Word требуется вход в Genspark.',
+    pdfDocxLoginMsg: 'Для экспорта в Word требуется вход в Fynix.',
     pdfDocxLoginDetail:
       'Нажмите «Войти», чтобы авторизоваться в браузере, затем снова запустите экспорт.',
     pdfDocxBtnLogin: 'Войти',
@@ -893,7 +889,7 @@ const tMain = createI18n({
     menuHelp: 'تعليمات',
     thirdPartyNotices: 'إشعارات برامج الجهات الخارجية',
     menuExportDocx: 'تصدير كملف Word…',
-    pdfDocxLoginMsg: 'يتطلب التصدير كملف Word تسجيل الدخول إلى Genspark.',
+    pdfDocxLoginMsg: 'يتطلب التصدير كملف Word تسجيل الدخول إلى Fynix.',
     pdfDocxLoginDetail:
       'انقر على «تسجيل الدخول» لفتح المتصفح وإتمام التفويض، ثم انقر على التصدير مرة أخرى.',
     pdfDocxBtnLogin: 'تسجيل الدخول',
@@ -948,7 +944,7 @@ const tMain = createI18n({
     menuHelp: 'Ajuda',
     thirdPartyNotices: 'Avisos de software de terceiros',
     menuExportDocx: 'Exportar como Word…',
-    pdfDocxLoginMsg: 'Exportar como Word requer login no Genspark.',
+    pdfDocxLoginMsg: 'Exportar como Word requer login no Fynix.',
     pdfDocxLoginDetail:
       'Clique em “Entrar” para autorizar no navegador; depois, clique em Exportar novamente.',
     pdfDocxBtnLogin: 'Entrar',
@@ -1005,7 +1001,7 @@ const tMain = createI18n({
     menuHelp: 'Aiuto',
     thirdPartyNotices: 'Note sul software di terze parti',
     menuExportDocx: 'Esporta come Word…',
-    pdfDocxLoginMsg: 'Per esportare come Word è necessario accedere a Genspark.',
+    pdfDocxLoginMsg: 'Per esportare come Word è necessario accedere a Fynix.',
     pdfDocxLoginDetail:
       'Fai clic su “Accedi” per autorizzare nel browser; al termine, fai di nuovo clic su Esporta.',
     pdfDocxBtnLogin: 'Accedi',
@@ -1062,7 +1058,7 @@ const tMain = createI18n({
     menuHelp: 'Pomoc',
     thirdPartyNotices: 'Informacje o oprogramowaniu innych firm',
     menuExportDocx: 'Eksportuj jako Word…',
-    pdfDocxLoginMsg: 'Eksport do formatu Word wymaga zalogowania do Genspark.',
+    pdfDocxLoginMsg: 'Eksport do formatu Word wymaga zalogowania do Fynix.',
     pdfDocxLoginDetail:
       'Kliknij „Zaloguj się”, aby autoryzować w przeglądarce; po zakończeniu kliknij Eksportuj ponownie.',
     pdfDocxBtnLogin: 'Zaloguj się',
@@ -1119,7 +1115,7 @@ const tMain = createI18n({
     menuHelp: 'Help',
     thirdPartyNotices: 'Kennisgevingen over software van derden',
     menuExportDocx: 'Exporteren als Word…',
-    pdfDocxLoginMsg: 'Exporteren als Word vereist inloggen bij Genspark.',
+    pdfDocxLoginMsg: 'Exporteren als Word vereist inloggen bij Fynix.',
     pdfDocxLoginDetail:
       'Klik op “Inloggen” om in de browser te autoriseren; klik daarna opnieuw op Exporteren.',
     pdfDocxBtnLogin: 'Inloggen',
@@ -1176,7 +1172,7 @@ const tMain = createI18n({
     menuHelp: 'Bantuan',
     thirdPartyNotices: 'Notis Perisian Pihak Ketiga',
     menuExportDocx: 'Eksport sebagai Word…',
-    pdfDocxLoginMsg: 'Eksport sebagai Word memerlukan log masuk ke Genspark.',
+    pdfDocxLoginMsg: 'Eksport sebagai Word memerlukan log masuk ke Fynix.',
     pdfDocxLoginDetail:
       'Klik “Log Masuk” untuk membuka pelayar dan memberi kebenaran; selepas selesai, klik Eksport sekali lagi.',
     pdfDocxBtnLogin: 'Log Masuk',
@@ -1233,7 +1229,7 @@ const tMain = createI18n({
     menuHelp: 'עזרה',
     thirdPartyNotices: 'הודעות על תוכנות צד שלישי',
     menuExportDocx: 'ייצוא כ-Word…',
-    pdfDocxLoginMsg: 'ייצוא כ-Word דורש התחברות ל-Genspark.',
+    pdfDocxLoginMsg: 'ייצוא כ-Word דורש התחברות ל-Fynix.',
     pdfDocxLoginDetail: 'לחיצה על ”התחברות” תפתח את הדפדפן לאישור; בסיום, לחצו שוב על ייצוא.',
     pdfDocxBtnLogin: 'התחברות',
     pdfDocxConfirmMsg: 'להעלות את ה-PDF לענן של Genspark ולהמיר אותו ל-Word?',
@@ -1429,7 +1425,7 @@ function createShellWindow(): void {
     height: 900,
     minWidth: 980,
     minHeight: 600,
-    title: 'GenOffice',
+    title: 'fynixOffice',
     // vibrancy: editor modules punch translucent regions (e.g. the slides
     // thumbnail pane) through to the desktop
     ...(process.platform === 'darwin'
@@ -1768,15 +1764,12 @@ function statEntries(paths: string[]): RecentEntry[] {
 }
 
 function registerHomeIpc(): void {
-  // signed-in means GenOffice's own device-code login; the shared gsk CLI key
-  // is only a silent fallback, deliberately not shown here to nudge users onto our key
+  // Suite SSO: opaque session from Office server (Keycloak via fynix-office).
+  // No credit balance — billing is not part of the suite product surface.
   ipcMain.handle(HOME_CHANNELS.accountStatus, async () => {
-    if (!loadGenofficeAuth()) return { loggedIn: false }
+    if (!suiteSessionToken()) return { loggedIn: false }
     await proxyBootstrap
-    const info = await gskLoginInfo()
-    return info
-      ? { loggedIn: true, email: info.email, creditBalance: info.creditBalance }
-      : { loggedIn: true }
+    return suiteAccountStatus()
   })
 
   // login progress is streamed to the requesting renderer; the auth URL is
@@ -1791,7 +1784,7 @@ function registerHomeIpc(): void {
     }
     // open the browser on the first url event only; later events refresh the rescue URL
     let opened = false
-    const launched = startGenofficeLogin((progress) => {
+    const launched = startSuiteLogin((progress) => {
       if (progress.url) {
         pendingLoginUrl = progress.url
         if (!opened) {
@@ -1810,7 +1803,7 @@ function registerHomeIpc(): void {
   })
 
   ipcMain.handle(HOME_CHANNELS.accountLogout, async () => {
-    await genofficeLogout()
+    await suiteLogout()
     // the cloud projects cache belongs to the account that just signed out
     clearCloudProjectsStore(cloudProjectsStorePath())
   })
@@ -2033,12 +2026,6 @@ function registerHomeIpc(): void {
 
   ipcMain.handle(HOME_CHANNELS.openGenTeam, () => {
     shell.openExternal(GENTEAM_URL).catch(() => {
-      // no browser handler available; nothing actionable for the user here
-    })
-  })
-
-  ipcMain.handle(HOME_CHANNELS.openCreditUsage, () => {
-    shell.openExternal(CREDIT_USAGE_URL).catch(() => {
       // no browser handler available; nothing actionable for the user here
     })
   })
@@ -2400,23 +2387,21 @@ async function savePdfAs(): Promise<void> {
 }
 
 /**
- * In-flight guard: covers the whole flow (dialogs included, conversion takes
- * ~10s+) so re-triggering from the menu can never start a second paid conversion
+ * In-flight guard: covers the whole flow (dialogs included, conversion can take
+ * a while) so re-triggering from the menu can never start a second conversion.
  */
 let exportingPdfDocx = false
 
 /**
- * Export as Word for pdf tabs: flush pending edits, confirm the 5-credit cost,
- * pick the destination, then upload + cloud-convert via gsk file_convert. Not
- * logged in → offer browser login and let the user re-trigger the export
- * afterwards. The destination is picked before converting so cancelling the
- * save dialog never wastes a paid conversion.
+ * Export as Word for pdf tabs: flush pending edits, pick the destination, then
+ * convert. Not signed in to Fynix → offer suite login and let the user re-trigger.
+ * No credit/billing confirmation — suite AI/conversion is entitlement-based.
  */
 async function exportPdfAsDocx(): Promise<void> {
   const tab = tabManager?.activePdfTab()
   if (!tab?.filePath || !shellWindow) return
   if (exportingPdfDocx) {
-    // Re-triggered while a previous export (dialogs or cloud conversion) is
+    // Re-triggered while a previous export (dialogs or conversion) is
     // still in flight: tell the user instead of silently ignoring the click.
     void dialog.showMessageBox(shellWindow, {
       type: 'info',
@@ -2427,17 +2412,7 @@ async function exportPdfAsDocx(): Promise<void> {
   exportingPdfDocx = true
   try {
     if (!(await flushPdfSave(tab.webContents))) return
-    if (!hasGskAuth()) {
-      // hasGskAuth() is also false when the gsk CLI itself cannot be resolved
-      // (broken install); Sign In could not launch in that case, so surface
-      // the real problem instead of a login dialog that cannot succeed.
-      if (!resolveGskEntry()) {
-        void dialog.showMessageBox(shellWindow, {
-          type: 'error',
-          message: tm('pdfDocxNoCliMsg'),
-        })
-        return
-      }
+    if (!suiteSessionToken()) {
       const { response } = await dialog.showMessageBox(shellWindow, {
         type: 'info',
         message: tm('pdfDocxLoginMsg'),
@@ -2447,18 +2422,13 @@ async function exportPdfAsDocx(): Promise<void> {
         cancelId: 1,
         noLink: true,
       })
-      if (response === 0) ensureGenofficeLogin((url) => void shell.openExternal(url))
+      if (response === 0) ensureSuiteLogin((url) => void shell.openExternal(url))
       return
     }
-    const balance = (await gskLoginInfo())?.creditBalance
-    const balanceLine =
-      balance === undefined
-        ? ''
-        : ` ${tm('pdfDocxConfirmBalance', { balance: Math.floor(balance).toLocaleString('en-US') })}`
     const confirm = await dialog.showMessageBox(shellWindow, {
       type: 'question',
       message: tm('pdfDocxConfirmMsg'),
-      detail: `${tm('pdfDocxConfirmDetail')}${balanceLine}`,
+      detail: tm('pdfDocxConfirmDetail'),
       buttons: [tm('pdfDocxBtnConvert'), tm('btnCancel')],
       defaultId: 0,
       cancelId: 1,
@@ -2473,7 +2443,6 @@ async function exportPdfAsDocx(): Promise<void> {
     // If the destination is already open in a docs tab, close it first (its
     // normal unsaved-changes guard applies) so the converted file opens fresh
     // instead of leaving a stale tab whose next save would clobber the result.
-    // Cancelling the close aborts the export before any credits are spent.
     const staleTabId = tabManager?.findDocsTabByPath(picked.filePath)
     if (staleTabId) {
       await tabManager?.closeTab(staleTabId)
@@ -2584,6 +2553,10 @@ async function installMainProcessProxy(): Promise<void> {
 // ---- lifecycle (the shell is the only owner) ----
 
 let pendingLaunchPath = supportedFileIn(process.argv) ?? unsupportedFileIn(process.argv)
+/** Suite deep-link (fynixoffice://open?ticket=…) pending until ready + optional sign-in. */
+let pendingSuiteOpenUrl =
+  extractSuiteOpenUrl(process.argv) ??
+  (process.argv.find((a) => a.startsWith('fynixoffice:')) ?? null)
 
 // show() does not un-minimize, and on macOS ⌘W destroys the shell window while the
 // app keeps running — either way a file opened from Finder would land out of sight.
@@ -2592,6 +2565,37 @@ function revealShellWindow(): void {
   if (shellWindow?.isMinimized()) shellWindow.restore()
   shellWindow?.show()
   shellWindow?.focus()
+}
+
+async function handleSuiteOpenUrl(url: string): Promise<boolean> {
+  revealShellWindow()
+  const result = await materializeSuiteOpen(url)
+  if ('error' in result) {
+    const opts = {
+      type: 'warning' as const,
+      message: result.error,
+      detail:
+        'Sign in to Fynix from the Account menu, then open the link again from DocFlow or Finance.',
+    }
+    if (shellWindow) void dialog.showMessageBox(shellWindow, opts)
+    else void dialog.showMessageBox(opts)
+    // If not signed in, start suite login so the next attempt works
+    if (!suiteSessionToken()) {
+      ensureSuiteLogin((loginUrl) => void shell.openExternal(loginUrl))
+    }
+    tabManager?.openHomeTab()
+    return false
+  }
+  return openDocumentPath(result.path)
+}
+
+// Custom protocol: fynixoffice://open?ticket=…
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('fynixoffice', process.execPath, [process.argv[1]!])
+  }
+} else {
+  app.setAsDefaultProtocolClient('fynixoffice')
 }
 
 // On macOS a file opened from Finder is not in argv; it arrives via the open-file event (before ready).
@@ -2608,11 +2612,24 @@ app.on('open-file', (event, filePath) => {
   if (!openDocumentPath(filePath)) tabManager?.openHomeTab()
 })
 
+app.on('open-url', (event, url) => {
+  event.preventDefault()
+  if (!app.isReady()) {
+    pendingSuiteOpenUrl = url
+    return
+  }
+  void handleSuiteOpenUrl(url)
+})
+
 app.on('second-instance', (_event, argv, _cwd, additionalData) => {
+  const data = additionalData as { launchPath?: string; suiteOpenUrl?: string } | null
+  const suiteUrl = extractSuiteOpenUrl(argv) ?? data?.suiteOpenUrl ?? null
+  if (suiteUrl) {
+    void handleSuiteOpenUrl(suiteUrl)
+    return
+  }
   const file =
-    supportedFileIn(argv) ??
-    unsupportedFileIn(argv) ??
-    (additionalData as { launchPath?: string } | null)?.launchPath
+    supportedFileIn(argv) ?? unsupportedFileIn(argv) ?? data?.launchPath ?? null
   revealShellWindow()
   if (!file || !openDocumentPath(file)) tabManager?.openHomeTab()
 })
@@ -2632,7 +2649,10 @@ setSessionPathResolver(resolveSheetsSessionPath)
 const devPidFile = () => join(app.getPath('userData'), 'dev-instance.pid')
 
 app.whenReady().then(async () => {
-  const lockData = () => (pendingLaunchPath ? { launchPath: pendingLaunchPath } : {})
+  const lockData = () => ({
+    ...(pendingLaunchPath ? { launchPath: pendingLaunchPath } : {}),
+    ...(pendingSuiteOpenUrl ? { suiteOpenUrl: pendingSuiteOpenUrl } : {}),
+  })
   let hasLock = app.requestSingleInstanceLock(lockData())
   if (!hasLock && !app.isPackaged) {
     // Dev watch restart: electron-vite SIGTERMs the previous instance and spawns this
@@ -2685,7 +2705,14 @@ app.whenReady().then(async () => {
   installDockMenu()
   initAutoUpdater(() => shellWindow, currentUpdateChannel())
 
-  if (!pendingLaunchPath || !openDocumentPath(pendingLaunchPath)) tabManager?.openHomeTab()
+  if (pendingSuiteOpenUrl) {
+    const url = pendingSuiteOpenUrl
+    pendingSuiteOpenUrl = null
+    const opened = await handleSuiteOpenUrl(url)
+    if (!opened && !pendingLaunchPath) tabManager?.openHomeTab()
+  } else if (!pendingLaunchPath || !openDocumentPath(pendingLaunchPath)) {
+    tabManager?.openHomeTab()
+  }
   pendingLaunchPath = null
 
   app.on('activate', () => {
