@@ -12,7 +12,7 @@ COPY packages/ai-provider packages/ai-provider
 COPY apps/office-server apps/office-server
 
 # Install only the server workspace (+ its workspace deps)
-RUN npm ci -w @fynixoffice/office-server -w @fynixoffice/ai-provider -w @fynixoffice/agent-core
+RUN npm ci --ignore-scripts -w @fynixoffice/office-server -w @fynixoffice/ai-provider -w @fynixoffice/agent-core
 
 FROM node:22-bookworm-slim
 WORKDIR /app
