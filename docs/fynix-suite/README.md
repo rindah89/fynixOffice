@@ -8,6 +8,7 @@ fynixOffice is the **rich document editor** for the Fynix business suite: Word-c
 | [Deploy (Docker)](../../apps/office-server/DEPLOY.md) | Linux install on `fynix-suite` network |
 | [Suite open (DocFlow / Finance)](../../apps/office-server/SUITE-OPEN.md) | Edit in Word / Open in Excel |
 | [DNS and hosting](./dns-and-hosting.md) | DNS records, Caddy, Vercel — what goes where |
+| [Data governance](./data-governance.md) | Signed Cyber Audit evidence, scheduling and verification |
 | [office-server API](../../apps/office-server/README.md) | Auth, AI, tickets, env vars |
 
 ## At a glance
