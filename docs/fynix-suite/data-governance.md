@@ -19,6 +19,8 @@ Office governance evidence is intended to support ISO/IEC 27001, ISO/IEC 27701, 
 
 The shared local-control library stores only an opaque SHA-256 path reference, file-content digest, canonical owner UUID, classification, and timestamps in its mode-0600 manifest. Its mode-0600 JSONL audit trail hash-chains classification, read, write, export, and denial events. Unclassified files fail closed; restricted exports require a controlled approval reference; an out-of-band content change is denied until it passes through the governed write path. This library is the enforcement foundation, but DG-02 and DG-05 remain partial until every editor open/save/export route calls it.
 
+The unified shell applies those checks to Docs, Sheets, Slides, PDF, and Markdown reads and successful saves. Its default save directory is classified `internal`. Define additional approved locations with `OFFICE_CLASSIFICATION_ROOTS_JSON`, for example `[{"root":"/controlled/board","label":"restricted"}]`. Roots must be absolute and labels must be one of `public`, `internal`, `confidential`, or `restricted`. A file outside every approved root is denied, and changing the file outside the governed editor invalidates its stored content digest. Standalone editor processes remain outside this enforcement path and therefore keep the suite-level controls partial until they use the same mandatory guard.
+
 Cyber Audit reports overdue privacy requests, active legal holds, pending processor reviews, disposition receipts, stale statements, and open exceptions. Assign an owner and due date to every exception. Do not mark a control effective solely because a command or statement was accepted.
 
 ## Privacy access requests

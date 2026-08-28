@@ -1,5 +1,7 @@
 import { execSync, spawn } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
 import {
+  chmodSync,
   copyFileSync,
   cpSync,
   existsSync,
@@ -8,7 +10,7 @@ import {
   renameSync,
   writeFileSync,
 } from 'node:fs'
-import { basename, dirname, extname, join } from 'node:path'
+import { basename, dirname, extname, isAbsolute, join, relative, resolve } from 'node:path'
 import {
   BrowserWindow,
   Menu,
@@ -36,6 +38,11 @@ import menuHomeIcon1x from './assets/menu-home.png?asset'
 import menuHomeIcon2x from './assets/menu-home@2x.png?asset'
 import { createI18n, isLang, normalizeLang, setUiLang, type Lang } from '@fynixoffice/i18n'
 import {
+  OfficeLocalGovernance,
+  officeClassifications,
+  type OfficeClassification,
+} from '@fynixoffice/governance'
+import {
   DEFAULT_SAVE_DIR_KEY,
   appMenuLabels,
   contextMenuLabels,
@@ -58,12 +65,14 @@ import { ProjectStore } from '@fynixoffice/project-store'
 import { gskConvertPdfToDocx, setGskProxyUrl } from '@fynixoffice/ai-search'
 import {
   ensureSuiteLogin,
+  saveOpenTicketContent,
   startSuiteLogin,
   suiteAccountStatus,
   suiteLogout,
   suiteSessionToken,
 } from '@fynixoffice/suite-auth'
-import { extractSuiteOpenUrl, materializeSuiteOpen } from './suite-open'
+import { extractSuiteOpenUrl, materializeSuiteOpen, suiteTempSessionDir } from './suite-open'
+import { cleanupSuiteTempSession, preserveSuiteTempFile } from './suite-temp'
 
 import {
   buildDocsMenu,
@@ -86,6 +95,8 @@ import {
   projectFileRenamed,
   setDocsShellWindow,
   setDocsFileSavedHook,
+  setDocsFileOpenGuard,
+  setDocsFileSaveGuard,
   setSessionPathResolver,
   defaultSaveDir,
   uniquePathIn,
@@ -106,6 +117,9 @@ import {
   setSheetsExtraFileMenuItems,
   setSheetsShellWindow,
   setSheetsWorkbookOpenedHook,
+  setSheetsWorkbookSavedHook,
+  setSheetsWorkbookOpenGuard,
+  setSheetsWorkbookSaveGuard,
   startSheetsCaptureServer,
   stopSheetsSidecar,
 } from '../../../sheets/src/main/sheets-main'
@@ -117,6 +131,9 @@ import {
   setSlidesCloseTabHook,
   setSlidesExtraFileMenuItems,
   setSlidesOpenedHook,
+  setSlidesSavedHook,
+  setSlidesOpenGuard,
+  setSlidesSaveGuard,
   setSlidesShellWindow,
   slidesFileRenamed,
 } from '../../../slides/src/main/slides-main'
@@ -127,6 +144,9 @@ import {
   requestPdfClose,
   requestPdfSaveAs,
   setPdfSaveAsInFlight,
+  setPdfFileOpenGuard,
+  setPdfFileSavedHook,
+  setPdfFileSaveGuard,
 } from '../../../pdf/src/main/pdf-main'
 import {
   configureMarkdownRuntime,
@@ -136,6 +156,8 @@ import {
   sendMarkdownExportRequest,
   setMarkdownDocxExportedHook,
   setMarkdownFileSavedHook,
+  setMarkdownFileOpenGuard,
+  setMarkdownFileSaveGuard,
 } from '../../../markdown/src/main/markdown-main'
 import type {
   AccountLoginEvent,
@@ -152,6 +174,7 @@ import { normalizeRecentQuery, pageRecentPaths, statExistingPaths } from './rece
 import { TabManager } from './tab-manager'
 import { applyUpdateChannel, initAutoUpdater } from './updater'
 import { isUpdateChannel, type UpdateChannel } from '../shared/update-api'
+import { SuiteSaveTracker } from './suite-save'
 
 /**
  * fynixOffice unified shell: ONE Electron app, ONE BrowserWindow, hosting the
@@ -290,14 +313,14 @@ const tMain = createI18n({
   zh: {
     menuFile: '文件',
     menuSectionNew: '新建',
-    menuNewDoc: 'AI Docs',
-    menuNewSheet: 'AI Sheets',
+    menuNewDoc: 'Documents IA',
+    menuNewSheet: 'Feuilles de calcul IA',
     untitledSheet: '未命名表格',
     untitledDoc: '未命名文档',
     untitledDeck: '未命名演示文稿',
     untitledMarkdown: '未命名 Markdown',
-    menuNewSlide: 'AI Slides',
-    menuNewMarkdown: 'AI Markdown',
+    menuNewSlide: 'Présentations IA',
+    menuNewMarkdown: 'Markdown IA',
     menuExportPdf: '导出为 PDF…',
     menuOpenInDocs: '转换为 Docs 文档并打开',
     menuOpen: '打开…',
@@ -513,16 +536,16 @@ const tMain = createI18n({
   fr: {
     menuFile: 'Fichier',
     menuSectionNew: 'Nouveau',
-    menuNewDoc: 'AI Docs',
-    menuNewSheet: 'AI Sheets',
+    menuNewDoc: 'Documents IA',
+    menuNewSheet: 'Feuilles de calcul IA',
     untitledSheet: 'Feuille de calcul sans titre',
     untitledDoc: 'Document sans titre',
     untitledDeck: 'Présentation sans titre',
     untitledMarkdown: 'Markdown sans titre',
-    menuNewSlide: 'AI Slides',
-    menuNewMarkdown: 'AI Markdown',
+    menuNewSlide: 'Présentations IA',
+    menuNewMarkdown: 'Markdown IA',
     menuExportPdf: 'Exporter en PDF…',
-    menuOpenInDocs: 'Convertir et ouvrir dans AI Docs',
+    menuOpenInDocs: 'Convertir et ouvrir dans Documents IA',
     menuOpen: 'Ouvrir…',
     menuSave: 'Enregistrer',
     menuSaveAs: 'Enregistrer sous…',
@@ -553,7 +576,7 @@ const tMain = createI18n({
     pdfDocxLoginDetail:
       "Cliquez sur « Se connecter » pour autoriser dans le navigateur, puis relancez l'export.",
     pdfDocxBtnLogin: 'Se connecter',
-    pdfDocxConfirmMsg: 'Téléverser ce PDF vers le cloud Genspark pour le convertir en Word ?',
+    pdfDocxConfirmMsg: 'Téléverser ce PDF vers le cloud Fynix AI pour le convertir en Word ?',
     pdfDocxConfirmDetail:
       'La conversion coûte 5 crédits. Le fichier sera téléversé pour traitement dans le cloud.',
     pdfDocxConfirmBalance: 'Solde actuel : {balance} crédits.',
@@ -561,7 +584,7 @@ const tMain = createI18n({
     btnCancel: 'Annuler',
     pdfDocxFailedMsg: "Échec de l'export en Word",
     pdfDocxNoCliMsg:
-      "Connexion à Genspark impossible : un composant requis (gsk) est manquant. Veuillez réinstaller l'application.",
+      "Connexion à Fynix AI impossible : un composant requis (gsk) est manquant. Veuillez réinstaller l'application.",
     pdfDocxBusyMsg: "Un export en Word est déjà en cours. Veuillez attendre qu'il se termine.",
     dlgPickSaveDir: "Choisir l'emplacement d'enregistrement par défaut",
     errSaveDirUnusable:
@@ -1363,6 +1386,92 @@ const tm = (key: Parameters<typeof tMain>[1], params?: Parameters<typeof tMain>[
 
 let shellWindow: BrowserWindow | null = null
 let tabManager: TabManager | null = null
+const suiteSaveTracker = new SuiteSaveTracker(saveOpenTicketContent, (error, filePath) => {
+  preserveSuiteTempFile(filePath)
+  const opts = {
+    type: 'warning' as const,
+    message: 'Could not save changes back to DocFlow',
+    detail: `${error.message}\n\nYour edited copy was preserved at:\n${filePath}\n\nReopen the document from DocFlow before trying again.`,
+  }
+  if (shellWindow && !shellWindow.isDestroyed()) void dialog.showMessageBox(shellWindow, opts)
+  else void dialog.showMessageBox(opts)
+})
+
+let localGovernance: OfficeLocalGovernance | undefined
+const LOCAL_GOVERNANCE_DIR = () => join(app.getPath('userData'), 'governance')
+const LOCAL_ACTOR_PATH = () => join(LOCAL_GOVERNANCE_DIR(), 'local-actor-ref')
+
+function localGovernanceActor(): string {
+  const path = LOCAL_ACTOR_PATH()
+  if (existsSync(path)) {
+    const value = readFileSync(path, 'utf8').trim().toLowerCase()
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value))
+      return value
+    throw new Error('Office local governance actor reference is invalid')
+  }
+  const value = randomUUID()
+  writeFileSync(path, value, { mode: 0o600, flag: 'wx' })
+  chmodSync(path, 0o600)
+  return value
+}
+
+function classificationRules(): Array<{ root: string; label: OfficeClassification }> {
+  const configured: unknown = JSON.parse(process.env.OFFICE_CLASSIFICATION_ROOTS_JSON || '[]')
+  if (!Array.isArray(configured)) throw new Error('OFFICE_CLASSIFICATION_ROOTS_JSON must be an array')
+  const rules = configured.map((value, index) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      throw new Error(`Office classification root ${index} is invalid`)
+    const item = value as Record<string, unknown>
+    if (typeof item.root !== 'string' || !isAbsolute(item.root) ||
+      typeof item.label !== 'string' || !officeClassifications.includes(item.label as OfficeClassification))
+      throw new Error(`Office classification root ${index} is invalid`)
+    return { root: resolve(item.root), label: item.label as OfficeClassification }
+  })
+  rules.push({ root: resolve(defaultSaveDir()), label: 'internal' })
+  return rules.sort((left, right) => right.root.length - left.root.length)
+}
+
+function classificationFor(filePath: string): OfficeClassification | undefined {
+  const file = resolve(filePath)
+  return classificationRules().find(({ root }) => {
+    const child = relative(root, file)
+    return child === '' || (!child.startsWith('..') && !isAbsolute(child))
+  })?.label
+}
+
+function governLocalFile(filePath: string, action: 'read' | 'write'): boolean {
+  try {
+    localGovernance ??= new OfficeLocalGovernance(LOCAL_GOVERNANCE_DIR())
+    const actor = localGovernanceActor()
+    try {
+      localGovernance.authorize(filePath, actor, action)
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('no enforced classification')) throw error
+      const label = classificationFor(filePath)
+      if (!label) throw new Error('File is outside every approved Office classification root')
+      localGovernance.classify(filePath, label, actor)
+      localGovernance.authorize(filePath, actor, action)
+    }
+    return true
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error)
+    console.error('[office-governance] file operation denied:', detail)
+    const options = { type: 'error' as const, message: 'Data-governance policy blocked this file operation', detail }
+    if (shellWindow && !shellWindow.isDestroyed()) void dialog.showMessageBox(shellWindow, options)
+    else void dialog.showMessageBox(options)
+    return false
+  }
+}
+
+function approveLocalSavePath(filePath: string): boolean {
+  if (classificationFor(filePath)) return true
+  const detail = 'File is outside every approved Office classification root'
+  console.error('[office-governance] file operation denied:', detail)
+  const options = { type: 'error' as const, message: 'Data-governance policy blocked this file operation', detail }
+  if (shellWindow && !shellWindow.isDestroyed()) void dialog.showMessageBox(shellWindow, options)
+  else void dialog.showMessageBox(options)
+  return false
+}
 
 /**
  * When the user creates a file from a specific project view, remember which
@@ -1478,6 +1587,19 @@ function createShellWindow(): void {
   })
   setSheetsCloseTabHook(() => manager.closeActiveTab())
   setSlidesCloseTabHook(() => manager.closeActiveTab())
+  setDocsFileOpenGuard((path) => governLocalFile(path, 'read'))
+  setSheetsWorkbookOpenGuard((path) => governLocalFile(path, 'read'))
+  setSlidesOpenGuard((path) => governLocalFile(path, 'read'))
+  setPdfFileOpenGuard((path) => governLocalFile(path, 'read'))
+  setMarkdownFileOpenGuard((path) => governLocalFile(path, 'read'))
+  setDocsFileSaveGuard(approveLocalSavePath)
+  setSheetsWorkbookSaveGuard(approveLocalSavePath)
+  setSlidesSaveGuard(approveLocalSavePath)
+  setPdfFileSaveGuard(approveLocalSavePath)
+  setMarkdownFileSaveGuard(approveLocalSavePath)
+  setPdfFileSavedHook((_wc, path) => {
+    governLocalFile(path, 'write')
+  })
   // When ⌘O opens a file inside a tab, sync the tab title/path (used for de-dup by path) and record it as recent.
   // The first save / save-as fires this too, so applyPendingProject also runs here.
   setSheetsWorkbookOpenedHook((wc, path) => {
@@ -1490,14 +1612,22 @@ function createShellWindow(): void {
     recordRecentFile(path)
     applyPendingProject(path)
   })
+  setSheetsWorkbookSavedHook((_wc, path) => {
+    governLocalFile(path, 'write')
+  })
+  setSlidesSavedHook((_wc, path) => {
+    governLocalFile(path, 'write')
+  })
   // docs' save-as / silent first save lands on a new path → sync the tab title too
   setDocsFileSavedHook((wc, path) => {
+    if (!governLocalFile(path, 'write')) return
     manager.setTabFileFor(wc.id, path)
     recordRecentFile(path)
     applyPendingProject(path)
   })
   // markdown untitled first save / Save As lands on a new path
   setMarkdownFileSavedHook((wc, path) => {
+    if (!governLocalFile(path, 'write')) return
     manager.setTabFileFor(wc.id, path)
     recordRecentFile(path)
     applyPendingProject(path)
@@ -1629,6 +1759,7 @@ function notifyUnsupportedFile(filePath: string): void {
 /** the single router: extension decides which module owns the file; false = nothing opened */
 function openDocumentPath(filePath: string): boolean {
   if (!existsSync(filePath) || !tabManager) return false
+  if (!governLocalFile(filePath, 'read')) return false
   if (DOCX_RE.test(filePath)) {
     recordRecentFile(filePath)
     const existing = tabManager.findDocsTabByPath(filePath)
@@ -2586,7 +2717,11 @@ async function handleSuiteOpenUrl(url: string): Promise<boolean> {
     tabManager?.openHomeTab()
     return false
   }
-  return openDocumentPath(result.path)
+  const opened = openDocumentPath(result.path)
+  if (opened) {
+    suiteSaveTracker.track(result.path, { ticketId: result.ticketId, source: result.source })
+  }
+  return opened
 }
 
 // Custom protocol: fynixoffice://open?ticket=…
@@ -2724,8 +2859,35 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-app.on('before-quit', () => {
+let suiteQuitInProgress = false
+let suiteQuitFinalized = false
+app.on('before-quit', (event) => {
   // No close prompt may fall through to "Save" during shutdown
   markSheetsShuttingDown()
   stopSheetsSidecar()
+  if (suiteQuitFinalized) return
+  event.preventDefault()
+  if (suiteQuitInProgress) return
+  suiteQuitInProgress = true
+  void (async () => {
+    const result = await suiteSaveTracker.shutdown(5_000)
+    for (const failure of result.failures) preserveSuiteTempFile(failure.filePath)
+
+    const tempDir = suiteTempSessionDir()
+    if (tempDir && result.failures.length === 0 && !result.timedOut) {
+      cleanupSuiteTempSession(tempDir)
+    }
+    if (result.failures.length > 0) {
+      const paths = result.failures.map((failure) => failure.filePath).join('\n')
+      await dialog.showMessageBox({
+        type: 'warning',
+        message: result.timedOut
+          ? 'DocFlow save-back did not finish before shutdown'
+          : 'Some changes could not be saved back to DocFlow',
+        detail: `Recovery copies were preserved at:\n${paths}`,
+      })
+    }
+    suiteQuitFinalized = true
+    app.quit()
+  })()
 })

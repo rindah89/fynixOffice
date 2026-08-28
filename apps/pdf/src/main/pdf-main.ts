@@ -277,6 +277,21 @@ const closeSaveWaiters = new Map<number, (ok: boolean) => void>()
 const saveAsWaiters = new Map<number, (ok: boolean) => void>()
 /** Save As destination granted per view (main-process dialog pick); the save handler refuses any other non-source target */
 const saveAsTargetByWc = new Map<number, string>()
+let fileOpenGuard: ((path: string) => boolean) | null = null
+let fileSavedHook: ((wc: WebContents, path: string) => void) | null = null
+let fileSaveGuard: ((path: string) => boolean) | null = null
+
+export function setPdfFileOpenGuard(guard: ((path: string) => boolean) | null): void {
+  fileOpenGuard = guard
+}
+
+export function setPdfFileSavedHook(hook: ((wc: WebContents, path: string) => void) | null): void {
+  fileSavedHook = hook
+}
+
+export function setPdfFileSaveGuard(guard: ((path: string) => boolean) | null): void {
+  fileSaveGuard = guard
+}
 
 export function pdfIsDirty(webContentsId: number): boolean {
   return dirtyByWc.has(webContentsId)
@@ -378,6 +393,8 @@ function registerPdfIpc(): void {
     if (typeof path !== 'string' || !allowedByWc.get(e.sender.id)?.has(path)) {
       throw new Error('pdf: path not granted to this view')
     }
+    if (fileOpenGuard && !fileOpenGuard(path))
+      throw new Error('pdf: file blocked by data-governance policy')
     const buf = await readFile(path)
     return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
   })
@@ -392,8 +409,12 @@ function registerPdfIpc(): void {
     if (target !== path && saveAsTargetByWc.get(e.sender.id) !== target) {
       return { ok: false, error: 'pdf: target path not granted to this view' }
     }
+    if (fileSaveGuard && !fileSaveGuard(target)) {
+      return { ok: false, error: 'pdf: save target blocked by data-governance policy' }
+    }
     try {
       const { skippedTextEdits, skippedImageEdits } = await savePdfToPath(path, target, request)
+      fileSavedHook?.(e.sender, target)
       return {
         ok: true,
         ...(skippedTextEdits.length > 0 ? { skippedTextEdits } : {}),
@@ -573,7 +594,7 @@ function registerPdfIpc(): void {
     async (_e, op: { prompt?: unknown; aspectRatio?: unknown }) => {
       if (!hasGskAuth())
         return {
-          error: 'Genspark account is not logged in on this machine; ask the user to log in first',
+          error: 'Fynix AI account is not logged in on this machine; ask the user to log in first',
         }
       const prompt = String(op?.prompt ?? '').trim()
       if (!prompt) return { error: 'prompt must not be empty' }

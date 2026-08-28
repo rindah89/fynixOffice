@@ -26,6 +26,7 @@
     "@fynixoffice/docx-engine": "*",
     "@fynixoffice/electron-utils": "*",
     "@fynixoffice/i18n": "*",
+    "@fynixoffice/governance": "*",
     "@fynixoffice/pptx-engine": "*",
     "@fynixoffice/pptx-render": "*",
     "@fynixoffice/sheets": "*",

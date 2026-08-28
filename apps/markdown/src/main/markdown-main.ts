@@ -307,9 +307,17 @@ const saveWaiters = new Map<number, (ok: boolean) => void>()
 
 /** Fired after a save lands on a NEW path (untitled first save / Save As) — the shell syncs tab title, recents, projects */
 let fileSavedHook: ((wc: WebContents, path: string) => void) | null = null
+let fileOpenGuard: ((path: string) => boolean) | null = null
+let fileSaveGuard: ((path: string) => boolean) | null = null
 
 export function setMarkdownFileSavedHook(hook: (wc: WebContents, path: string) => void): void {
   fileSavedHook = hook
+}
+export function setMarkdownFileOpenGuard(guard: ((path: string) => boolean) | null): void {
+  fileOpenGuard = guard
+}
+export function setMarkdownFileSaveGuard(guard: ((path: string) => boolean) | null): void {
+  fileSaveGuard = guard
 }
 
 /** Fired after a "convert & open in Docs" export — the shell routes the new .docx to a docs tab */
@@ -492,6 +500,8 @@ function registerMarkdownIpc(): void {
     if (typeof path !== 'string' || !allowedByWc.get(e.sender.id)?.has(path)) {
       throw new Error('markdown: path not granted to this view')
     }
+    if (fileOpenGuard && !fileOpenGuard(path))
+      throw new Error('markdown: file blocked by data-governance policy')
     return await readFile(path, 'utf8')
   })
 
@@ -514,6 +524,9 @@ function registerMarkdownIpc(): void {
         const target = await resolveSaveTarget(e, mode, suggestedName)
         if (target === 'canceled') return done({ ok: true, canceled: true })
         if (!target) return done({ ok: false, error: 'markdown: no save target' })
+        if (fileSaveGuard && !fileSaveGuard(target)) {
+          return done({ ok: false, error: 'markdown: save target blocked by data-governance policy' })
+        }
         const isNewPath = savePathByWc.get(e.sender.id) !== target
         await writeTextAtomic(target, request.text)
         savePathByWc.set(e.sender.id, target)
@@ -524,7 +537,7 @@ function registerMarkdownIpc(): void {
         allowed.add(target)
         allowedByWc.set(e.sender.id, allowed)
         dirtyByWc.delete(e.sender.id)
-        if (isNewPath) fileSavedHook?.(e.sender, target)
+        fileSavedHook?.(e.sender, target)
         return done({ ok: true, path: target })
       } catch (err) {
         return done({ ok: false, error: err instanceof Error ? err.message : String(err) })

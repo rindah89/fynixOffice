@@ -384,8 +384,20 @@ const clipboards = new Map<number, { items: ElementClipboardItem[]; pasteCount: 
 
 /** Shell hook: a view opened a file (including ⌘O inside a tab) — used to update tab titles and de-duplicate paths */
 let slidesOpenedHook: ((wc: WebContents, path: string) => void) | null = null
+let slidesSavedHook: ((wc: WebContents, path: string) => void) | null = null
+let slidesOpenGuard: ((path: string) => boolean) | null = null
+let slidesSaveGuard: ((path: string) => boolean) | null = null
 export function setSlidesOpenedHook(fn: ((wc: WebContents, path: string) => void) | null): void {
   slidesOpenedHook = fn
+}
+export function setSlidesSavedHook(fn: ((wc: WebContents, path: string) => void) | null): void {
+  slidesSavedHook = fn
+}
+export function setSlidesOpenGuard(guard: ((path: string) => boolean) | null): void {
+  slidesOpenGuard = guard
+}
+export function setSlidesSaveGuard(guard: ((path: string) => boolean) | null): void {
+  slidesSaveGuard = guard
 }
 
 const RECENT_PATH = () => join(app.getPath('userData'), 'slides-recent.json')
@@ -669,6 +681,8 @@ async function openAndBuild(
   path: string,
   fitWidthPx: number,
 ): Promise<OpenResult> {
+  if (slidesOpenGuard && !slidesOpenGuard(path))
+    throw new Error('slides: file blocked by data-governance policy')
   const raw = await readFile(path)
   const { bytes, recovered } = await maybeRecoverBytes(path, new Uint8Array(raw))
   await shapedMetricsReady() // Lay out only after complex-script shaped metrics are ready, avoiding an init race falling back to estimation
@@ -3471,6 +3485,9 @@ export function registerSlidesIpc(): void {
       slidesOpenedHook?.(e.sender, session.path)
     }
     try {
+      if (slidesSaveGuard && !slidesSaveGuard(session.path)) {
+        return { ok: false, error: 'save target is blocked by data-governance policy' }
+      }
       await savePptxToFile(session.opened, session.path)
       autosaveBackoff.delete(session.path)
       void rm(autosavePathFor(session.path), { force: true }).catch(() => {})
@@ -3481,6 +3498,7 @@ export function registerSlidesIpc(): void {
       // but the renderer still expects the render tree in the response.
       commitSaved(session.opened)
       session.metaDirty = false
+      slidesSavedHook?.(e.sender, session.path)
       return {
         ok: true,
         path: session.path,
@@ -3502,6 +3520,9 @@ export function registerSlidesIpc(): void {
     const r = await showSaveDialogWithMemory(dialog, parent, options, getDraftsDir())
     if (r.canceled || !r.filePath) return { ok: false }
     try {
+      if (slidesSaveGuard && !slidesSaveGuard(r.filePath)) {
+        return { ok: false, error: 'save target is blocked by data-governance policy' }
+      }
       await savePptxToFile(session.opened, r.filePath)
       session.path = r.filePath
       autosaveBackoff.delete(r.filePath)
@@ -3510,6 +3531,7 @@ export function registerSlidesIpc(): void {
       slidesOpenedHook?.(e.sender, r.filePath)
       commitSaved(session.opened)
       session.metaDirty = false
+      slidesSavedHook?.(e.sender, r.filePath)
       return {
         ok: true,
         path: r.filePath,
