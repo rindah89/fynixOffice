@@ -13,6 +13,14 @@ fynixOffice publishes a signed daily governance statement to Cyber Audit. The st
 
 Cyber Audit reports overdue privacy requests, active legal holds, pending processor reviews, disposition receipts, stale statements, and open exceptions. Assign an owner and due date to every exception. Do not mark a control effective solely because a command or statement was accepted.
 
+## Privacy access requests
+
+After verifying the requester, an authorized privacy operator can produce an owner-only JSON access export with `npm run privacy:export -w @fynixoffice/governance`. Configure `OFFICE_USER_DATA_DIRS` as a JSON object that names every installed Office application and its Electron user-data directory, for example `{"docs":"/controlled/docs-data","slides":"/controlled/slides-data"}`. The command fails if the manifest is empty or malformed, opens the request in Cyber Audit, and records the completed export's SHA-256 digest.
+
+The export contains Office settings, recent-item metadata, project metadata, and local AI chat history from the declared application roots. API keys, passwords, tokens, and credentials are redacted. Document, spreadsheet, and presentation file contents are excluded because their owning workspace must apply its own access, classification, retention, and legal-hold rules. Deliver the export only through the approved privacy channel; never attach it to a support ticket.
+
+Set `OFFICE_PRIVACY_SUBJECT` to the requester's canonical opaque UUID, `OFFICE_PRIVACY_IDENTITY_EVIDENCE_REF` to a controlled `urn:fynix:` or `evidence://` reference, and `OFFICE_PRIVACY_OUTPUT` to a new protected path. The command never overwrites an existing export. Access export is implemented, but DG-03 remains partial until Office also provides governed correction, restriction, objection, and erasure workflows across every local data surface.
+
 Report every Office hosting, update, crash-reporting, AI, conversion, signing, and collaboration processor plus its processing countries to the central privacy or procurement owner before enabling it. Cyber Audit reconciles this configured inventory daily; additions, removals, agreement changes, and transfer changes return the item to pending review and invalidate the former exact-register certification.
 
 ## Configure

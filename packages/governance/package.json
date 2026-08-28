@@ -10,7 +10,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "publish": "tsx src/publish.ts"
+    "publish": "tsx src/publish.ts",
+    "privacy:export": "tsx src/privacy-export.ts"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

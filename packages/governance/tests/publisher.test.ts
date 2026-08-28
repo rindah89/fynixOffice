@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildOfficeStatement, controlIds, publishOfficeControl, publishOfficeStatement } from '../src/index.js'
+import {
+  buildOfficeStatement,
+  controlIds,
+  publishOfficeControl,
+  publishOfficeStatement,
+} from '../src/index.js'
 
 describe('Office governance publisher', () => {
   it('reports all controls and preserves known gaps', () => {
@@ -9,6 +14,12 @@ describe('Office governance publisher', () => {
     expect(
       statement.payload.controls.find((control) => control.control_id === 'DG-05')?.status,
     ).toBe('partially_effective')
+    expect(
+      statement.payload.controls.find((control) => control.control_id === 'DG-03'),
+    ).toMatchObject({
+      status: 'partially_effective',
+      metrics: { privacy_access_export: true, secret_redaction: true, erasure_fulfillment: false },
+    })
     expect(
       statement.payload.controls.find((control) => control.control_id === 'DG-12')?.status,
     ).toBe('effective')
@@ -61,8 +72,23 @@ describe('Office governance publisher', () => {
       const body = JSON.parse(String(init?.body))
       expect(body).toMatchObject({ tenant_id: 'tenant-1', command: 'processor.register' })
       expect(new Headers(init?.headers).get('X-Fynix-Event')).toBe('governance.control.commanded')
-      return new Response(JSON.stringify({ outcome: 'recorded', resource_type: 'data_processor', resource_id: 5 }), { status: 201, headers: { 'Content-Type': 'application/json' } })
+      return new Response(
+        JSON.stringify({ outcome: 'recorded', resource_type: 'data_processor', resource_id: 5 }),
+        { status: 201, headers: { 'Content-Type': 'application/json' } },
+      )
     })
-    await expect(publishOfficeControl({ endpoint: 'https://cyberaudit.example/controls', tenantId: 'tenant-1', webhookId: 'webhook', secret: 'x'.repeat(32) }, 'processor.register', { name: 'AI' }, upstream)).resolves.toMatchObject({ resource_id: 5 })
+    await expect(
+      publishOfficeControl(
+        {
+          endpoint: 'https://cyberaudit.example/controls',
+          tenantId: 'tenant-1',
+          webhookId: 'webhook',
+          secret: 'x'.repeat(32),
+        },
+        'processor.register',
+        { name: 'AI' },
+        upstream,
+      ),
+    ).resolves.toMatchObject({ resource_id: 5 })
   })
 })

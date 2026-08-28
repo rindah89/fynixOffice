@@ -31,9 +31,9 @@ const controls: Record<string, Definition> = {
   'DG-03': {
     status: 'partially_effective',
     summary:
-      'AI requests are bounded and provider-aware; a complete privacy rights and processing-purpose register is not automated.',
-    evidence_refs: ['packages/ai-provider', 'apps/office-server/src/ai-routes.ts'],
-    metrics: { privacy_register: false },
+      'A fail-closed access export covers Office-controlled settings, recent-file metadata, projects and AI chats with secret redaction and CyberAudit evidence; erasure and processing-purpose automation remain incomplete.',
+    evidence_refs: ['packages/governance/src/privacy.ts', 'packages/project-store', 'apps/office-server/src/ai-routes.ts'],
+    metrics: { privacy_access_export: true, secret_redaction: true, erasure_fulfillment: false },
   },
   'DG-04': {
     status: 'effective',
