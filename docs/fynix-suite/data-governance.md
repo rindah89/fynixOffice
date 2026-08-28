@@ -2,6 +2,12 @@
 
 fynixOffice publishes a signed daily governance statement to Cyber Audit. The statement covers all twelve suite controls and reports known gaps as `partially_effective`; the publisher does not convert missing evidence into a passing result.
 
+## Standards and certification status
+
+Office governance evidence is intended to support ISO/IEC 27001, ISO/IEC 27701, SOC 2, GDPR, NIST Cybersecurity Framework 2.0, and CIS Controls assessments. This mapping is not automatic certification. A control is certification-ready only when every relevant Office data surface has an executable workflow, its digest-bound evidence is current, required independent Cyber Audit review passed, and no overdue exception or expired waiver remains.
+
+**Recorded** means received, **pending review** means unapproved, **effective** means current automated and human gates passed, and **partially effective** means a known gap remains. Office must continue to report a partial result for privacy rights or lifecycle capabilities that are not executable across every declared surface.
+
 ## User responsibilities
 
 - Keep sensitive documents in their approved workspace and classification. Opening a file in fynixOffice does not change the owning application's access rules.
