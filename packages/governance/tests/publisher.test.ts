@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildOfficeStatement, controlIds, publishOfficeStatement } from '../src/index.js'
+import { buildOfficeStatement, controlIds, publishOfficeControl, publishOfficeStatement } from '../src/index.js'
 
 describe('Office governance publisher', () => {
   it('reports all controls and preserves known gaps', () => {
@@ -51,5 +51,15 @@ describe('Office governance publisher', () => {
         secret: 'x'.repeat(32),
       }),
     ).rejects.toThrow(/HTTPS/)
+  })
+
+  it('publishes signed governance control commands', async () => {
+    const upstream = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
+      const body = JSON.parse(String(init?.body))
+      expect(body).toMatchObject({ tenant_id: 'tenant-1', command: 'processor.register' })
+      expect(new Headers(init?.headers).get('X-Fynix-Event')).toBe('governance.control.commanded')
+      return new Response(JSON.stringify({ outcome: 'recorded', resource_type: 'data_processor', resource_id: 5 }), { status: 201, headers: { 'Content-Type': 'application/json' } })
+    })
+    await expect(publishOfficeControl({ endpoint: 'https://cyberaudit.example/controls', tenantId: 'tenant-1', webhookId: 'webhook', secret: 'x'.repeat(32) }, 'processor.register', { name: 'AI' }, upstream)).resolves.toMatchObject({ resource_id: 5 })
   })
 })

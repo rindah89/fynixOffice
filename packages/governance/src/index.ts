@@ -173,3 +173,27 @@ export async function publishOfficeStatement(
     throw new Error('Cyber Audit returned an invalid governance receipt')
   return { outcome: receipt.outcome, statementId: receipt.statement_id }
 }
+
+export async function publishOfficeControl(
+  config: { endpoint: string; tenantId: string; webhookId: string; secret: string },
+  command: string,
+  payload: Record<string, unknown>,
+  fetchImpl: typeof fetch = fetch,
+) {
+  const endpoint = new URL(config.endpoint)
+  const local = endpoint.hostname === 'localhost' || endpoint.hostname === '127.0.0.1'
+  if (endpoint.protocol !== 'https:' && !local) throw new Error('Governance endpoint must use HTTPS')
+  if (!config.tenantId || !config.webhookId || config.secret.length < 32) throw new Error('Governance publisher binding is incomplete')
+  const raw = JSON.stringify({ tenant_id: config.tenantId, command, payload })
+  const timestamp = Math.floor(Date.now() / 1000), deliveryId = randomUUID()
+  const canonical = ['fynix-v2', String(timestamp), 'governance.control.commanded', 'office', config.webhookId, deliveryId].join('\0') + '\0' + raw
+  const response = await fetchImpl(endpoint, { method: 'POST', redirect: 'manual', body: raw, signal: AbortSignal.timeout(10_000), headers: {
+    'Content-Type': 'application/json', Accept: 'application/json', 'X-Fynix-Timestamp': String(timestamp),
+    'X-Fynix-Event': 'governance.control.commanded', 'X-Fynix-Source': 'office', 'X-Fynix-Webhook-Id': config.webhookId,
+    'X-Fynix-Delivery-Id': deliveryId, 'X-Fynix-Signature': `v2=${createHmac('sha256', config.secret).update(canonical).digest('hex')}`,
+  }})
+  if (!response.ok) throw new Error(`Cyber Audit governance control receiver returned ${response.status}`)
+  const receipt = await response.json() as { outcome?: string; resource_type?: string; resource_id?: number }
+  if (receipt.outcome !== 'recorded' && receipt.outcome !== 'duplicate ignored') throw new Error('Cyber Audit returned an invalid governance control receipt')
+  return receipt
+}
