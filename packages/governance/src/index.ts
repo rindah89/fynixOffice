@@ -96,11 +96,11 @@ const controls: Record<string, Definition> = {
     metrics: { processor_transfer_register: false },
   },
   'DG-12': {
-    status: 'effective',
+    status: 'partially_effective',
     summary:
-      'Workspace type checks, tests, format checks, license checks and packaged application builds gate delivery.',
+      'Workspace type checks, tests, format checks, license checks and packaged application builds gate delivery, but the production dependency audit still reports a high-severity finding.',
     evidence_refs: ['package.json', 'package-lock.json', 'tools'],
-    metrics: { workspace_test_gate: true },
+    metrics: { workspace_test_gate: true, high_severity_dependency_findings: 1 },
   },
 }
 

@@ -9,6 +9,9 @@ describe('Office governance publisher', () => {
     expect(
       statement.payload.controls.find((control) => control.control_id === 'DG-05')?.status,
     ).toBe('partially_effective')
+    expect(
+      statement.payload.controls.find((control) => control.control_id === 'DG-12')?.status,
+    ).toBe('partially_effective')
   })
 
   it('publishes signed tenant-bound evidence and validates the receipt', async () => {
