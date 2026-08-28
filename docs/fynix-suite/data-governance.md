@@ -38,3 +38,5 @@ npm run test -w @fynixoffice/governance
 ```
 
 In Cyber Audit, confirm that **Suite Data Governance** shows Office as current and review every generated exception for an owner and due date.
+
+fynixOffice edits local user files and does not centrally own their retention schedule, legal holds, privacy register, processor inventory, or backup service. Those controls must remain `partially_effective` until an owning service implements and evidences them. Local safe-save and crash recovery are not organization backup or restore-drill proof.
