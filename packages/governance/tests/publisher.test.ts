@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import {
   buildOfficeStatement,
   controlIds,
+  loadOfficeProcessorInventory,
   publishOfficeControl,
   publishOfficeStatement,
+  synchronizeOfficeProcessorInventory,
 } from '../src/index.js'
 
 describe('Office governance publisher', () => {
@@ -90,5 +95,40 @@ describe('Office governance publisher', () => {
         upstream,
       ),
     ).resolves.toMatchObject({ resource_id: 5 })
+  })
+
+  it('validates, synchronizes and conditionally promotes the processor register', async () => {
+    const path = join(mkdtempSync(join(tmpdir(), 'office-processors-')), 'inventory.json')
+    writeFileSync(path, JSON.stringify([{
+      name: 'AI provider', purpose: 'Document assistance', data_categories: ['document prompts'],
+      processing_countries: ['CM'], transfer_mechanism: null, agreement_owner: 'Privacy Office',
+      agreement_evidence_ref: 'urn:fynix:agreement:office-ai',
+      agreement_evidence_sha256: 'a'.repeat(64), review_due_at: '2027-08-28T00:00:00Z',
+    }]))
+    const inventory = loadOfficeProcessorInventory(path)
+    expect(buildOfficeStatement(
+      'tenant', new Date('2026-08-28T12:00:00Z'), inventory,
+    ).payload.controls.find((control) => control.control_id === 'DG-11')).toMatchObject({
+      status: 'effective', metrics: { declared_processors: 1 },
+    })
+    const upstream = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
+      if (typeof init?.body !== 'string') throw new Error('Expected JSON body')
+      const body = JSON.parse(init.body)
+      expect(body).toMatchObject({ command: 'processor.register', payload: { name: 'AI provider' } })
+      return new Response(
+        JSON.stringify({ outcome: 'recorded', resource_type: 'processor', resource_id: 8 }),
+        { status: 201, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    await expect(synchronizeOfficeProcessorInventory({
+      endpoint: 'https://cyberaudit.example/controls', tenantId: 'tenant',
+      webhookId: 'webhook', secret: 'x'.repeat(32),
+    }, inventory, upstream)).resolves.toHaveLength(1)
+  })
+
+  it('rejects incomplete processor inventory', () => {
+    const path = join(mkdtempSync(join(tmpdir(), 'office-processors-')), 'inventory.json')
+    writeFileSync(path, '[{"name":"incomplete"}]')
+    expect(() => loadOfficeProcessorInventory(path)).toThrow(/invalid schema/)
   })
 })

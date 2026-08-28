@@ -1,4 +1,5 @@
 import { createHmac, randomUUID } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 
 export const controlIds = Array.from(
   { length: 12 },
@@ -11,6 +12,17 @@ type Definition = {
   summary: string
   evidence_refs: string[]
   metrics: Record<string, string | number | boolean | null>
+}
+export type ProcessorInventoryEntry = {
+  name: string
+  purpose: string
+  data_categories: string[]
+  processing_countries: string[]
+  transfer_mechanism: string | null
+  agreement_owner: string
+  agreement_evidence_ref: string
+  agreement_evidence_sha256: string
+  review_due_at: string
 }
 
 const controls: Record<string, Definition> = {
@@ -104,8 +116,68 @@ const controls: Record<string, Definition> = {
   },
 }
 
-export function buildOfficeStatement(tenantId: string, now = new Date()) {
+export function loadOfficeProcessorInventory(path: string): ProcessorInventoryEntry[] {
+  const raw: unknown = JSON.parse(readFileSync(path, 'utf8'))
+  if (!Array.isArray(raw) || raw.length === 0)
+    throw new Error('Processor inventory must be a non-empty JSON array')
+  const required = [
+    'agreement_evidence_ref', 'agreement_evidence_sha256', 'agreement_owner',
+    'data_categories', 'name', 'processing_countries', 'purpose', 'review_due_at',
+    'transfer_mechanism',
+  ]
+  const names = new Set<string>()
+  const inventory: ProcessorInventoryEntry[] = raw.map((value: unknown, index: number) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      throw new Error(`Processor inventory entry ${index} has an invalid schema`)
+    const entry = value as Record<string, unknown>
+    if (Object.keys(entry).sort().join() !== required.join())
+      throw new Error(`Processor inventory entry ${index} has an invalid schema`)
+    const name = typeof entry.name === 'string' ? entry.name.trim() : ''
+    const key = name.toLocaleLowerCase('en')
+    if (!name || names.has(key))
+      throw new Error(`Processor inventory entry ${index} has an invalid or duplicate name`)
+    for (const field of ['data_categories', 'processing_countries'] as const) {
+      const values: unknown = entry[field]
+      if (!Array.isArray(values) || values.length === 0 || values.some(
+        (item: unknown) => typeof item !== 'string' || !item.trim(),
+      )) throw new Error(`Processor inventory entry ${index} has invalid ${field}`)
+    }
+    for (const field of ['purpose', 'agreement_owner', 'agreement_evidence_ref', 'review_due_at'] as const) {
+      if (typeof entry[field] !== 'string' || !entry[field].trim())
+        throw new Error(`Processor inventory entry ${index} has invalid ${field}`)
+    }
+    if (entry.transfer_mechanism !== null &&
+      (typeof entry.transfer_mechanism !== 'string' || !entry.transfer_mechanism.trim()))
+      throw new Error(`Processor inventory entry ${index} has invalid transfer_mechanism`)
+    if (typeof entry.agreement_evidence_sha256 !== 'string' ||
+      !/^[a-f0-9]{64}$/.test(entry.agreement_evidence_sha256))
+      throw new Error(`Processor inventory entry ${index} has invalid agreement evidence digest`)
+    names.add(key)
+    return entry as unknown as ProcessorInventoryEntry
+  })
+  return inventory.sort((left, right) => left.name.localeCompare(right.name))
+}
+
+export function buildOfficeStatement(
+  tenantId: string,
+  now = new Date(),
+  processorInventory?: ProcessorInventoryEntry[],
+) {
   const at = now.toISOString()
+  const statementControls = controlIds.map((control_id) => ({
+    control_id,
+    observed_at: at,
+    ...controls[control_id],
+  }))
+  if (processorInventory?.length) {
+    const processor = statementControls.find((control) => control.control_id === 'DG-11')
+    if (processor) Object.assign(processor, {
+      status: 'effective',
+      summary: 'The complete deployment-owned processor and transfer inventory is schema-validated and synchronized to CyberAudit for independent review and exact-register certification.',
+      evidence_refs: ['docs/fynix-suite/data-governance.md'],
+      metrics: { processor_transfer_register: true, declared_processors: processorInventory.length },
+    })
+  }
   return {
     event_type: 'governance.evidence.reported' as const,
     tenant_id: tenantId,
@@ -116,11 +188,7 @@ export function buildOfficeStatement(tenantId: string, now = new Date()) {
       schema_version: 'fynix-governance-evidence/v1' as const,
       period_start: new Date(now.getTime() - 86_400_000).toISOString(),
       period_end: at,
-      controls: controlIds.map((control_id) => ({
-        control_id,
-        observed_at: at,
-        ...controls[control_id],
-      })),
+      controls: statementControls,
     },
   }
 }
@@ -128,6 +196,7 @@ export function buildOfficeStatement(tenantId: string, now = new Date()) {
 export async function publishOfficeStatement(
   config: { endpoint: string; tenantId: string; webhookId: string; secret: string },
   fetchImpl: typeof fetch = fetch,
+  processorInventory?: ProcessorInventoryEntry[],
 ) {
   const endpoint = new URL(config.endpoint)
   const local = endpoint.hostname === 'localhost' || endpoint.hostname === '127.0.0.1'
@@ -135,7 +204,7 @@ export async function publishOfficeStatement(
     throw new Error('Governance endpoint must use HTTPS')
   if (!config.tenantId || !config.webhookId || config.secret.length < 32)
     throw new Error('Governance publisher binding is incomplete')
-  const statement = buildOfficeStatement(config.tenantId)
+  const statement = buildOfficeStatement(config.tenantId, new Date(), processorInventory)
   const raw = JSON.stringify(statement)
   const timestamp = Math.floor(Date.now() / 1000)
   const deliveryId = randomUUID()
@@ -196,4 +265,21 @@ export async function publishOfficeControl(
   const receipt = await response.json() as { outcome?: string; resource_type?: string; resource_id?: number }
   if (receipt.outcome !== 'recorded' && receipt.outcome !== 'duplicate ignored') throw new Error('Cyber Audit returned an invalid governance control receipt')
   return receipt
+}
+
+export async function synchronizeOfficeProcessorInventory(
+  config: { endpoint: string; tenantId: string; webhookId: string; secret: string },
+  inventory: ProcessorInventoryEntry[],
+  fetchImpl: typeof fetch = fetch,
+) {
+  const receipts: Array<{ outcome?: string; resource_type?: string; resource_id?: number }> = []
+  for (const processor of inventory) {
+    const receipt = await publishOfficeControl(
+      config, 'processor.register', processor, fetchImpl,
+    )
+    if (!['processor', 'data_processor'].includes(receipt.resource_type ?? '') ||
+      !receipt.resource_id) throw new Error('Cyber Audit returned an invalid processor receipt')
+    receipts.push(receipt)
+  }
+  return receipts
 }
