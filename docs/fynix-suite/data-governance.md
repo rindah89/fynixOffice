@@ -13,6 +13,8 @@ fynixOffice publishes a signed daily governance statement to Cyber Audit. The st
 
 Cyber Audit reports overdue privacy requests, active legal holds, pending processor reviews, disposition receipts, stale statements, and open exceptions. Assign an owner and due date to every exception. Do not mark a control effective solely because a command or statement was accepted.
 
+Report every Office hosting, update, crash-reporting, AI, conversion, signing, and collaboration processor plus its processing countries to the central privacy or procurement owner before enabling it. Cyber Audit reconciles this configured inventory daily; additions, removals, agreement changes, and transfer changes return the item to pending review and invalidate the former exact-register certification.
+
 ## Configure
 
 Set these values in the scheduler's secret store:
