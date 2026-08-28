@@ -1,6 +1,16 @@
 import { createHmac, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 
+export {
+  OfficeLocalGovernance,
+  officeClassifications,
+  opaquePath,
+  type ClassificationRecord,
+  type OfficeAuditEvent,
+  type OfficeClassification,
+  type OfficeFileAction,
+} from './local-controls.js'
+
 export const controlIds = Array.from(
   { length: 12 },
   (_, index) => `DG-${String(index + 1).padStart(2, '0')}`,

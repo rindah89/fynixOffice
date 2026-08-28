@@ -17,6 +17,8 @@ Office governance evidence is intended to support ISO/IEC 27001, ISO/IEC 27701, 
 - Record disposition only after the retention period has elapsed and the owning application has completed the actual source action.
 - Processor entries remain pending until independent review. Restore evidence must describe a completed drill and cannot be future-dated.
 
+The shared local-control library stores only an opaque SHA-256 path reference, file-content digest, canonical owner UUID, classification, and timestamps in its mode-0600 manifest. Its mode-0600 JSONL audit trail hash-chains classification, read, write, export, and denial events. Unclassified files fail closed; restricted exports require a controlled approval reference; an out-of-band content change is denied until it passes through the governed write path. This library is the enforcement foundation, but DG-02 and DG-05 remain partial until every editor open/save/export route calls it.
+
 Cyber Audit reports overdue privacy requests, active legal holds, pending processor reviews, disposition receipts, stale statements, and open exceptions. Assign an owner and due date to every exception. Do not mark a control effective solely because a command or statement was accepted.
 
 ## Privacy access requests
