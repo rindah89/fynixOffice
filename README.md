@@ -27,6 +27,8 @@ layer.
 
 ## Download
 
+For privacy access requests, protected exports, evidence minimization, legal holds, retention, processor reporting, recovery evidence, and CyberAudit oversight, see the [data governance user guide](docs/fynix-suite/data-governance.md). A recorded governance submission is not certification, and document contents remain governed by their owning workspace.
+
 | Platform                             | Requirements                                          | Download                                                                                                                         |
 | ------------------------------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **macOS** — Apple Silicon (arm64)    | macOS 11+                                             | [fynixOffice-0.6.101-arm64.dmg](https://github.com/rindah89/fynixOffice/releases/download/v0.6.101/fynixOffice-0.6.101-arm64.dmg)   |
