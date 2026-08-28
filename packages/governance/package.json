@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "publish": "tsx src/publish.ts",
-    "privacy:export": "tsx src/privacy-export.ts"
+    "privacy:export": "tsx src/privacy-export.ts",
+    "privacy:erase": "tsx src/privacy-erasure-cli.ts"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

@@ -74,6 +74,20 @@ function projectFiles(root: string): string[] {
   return found.sort()
 }
 
+export function discoverOfficePrivacyFiles(userDataDir: string): { root: string; files: string[] } {
+  const root = resolve(userDataDir)
+  const metadata = lstatSync(root)
+  if (!metadata.isDirectory() || metadata.isSymbolicLink())
+    throw new Error('user data path must be a real directory')
+  return {
+    root,
+    files: [
+      ...[...ROOT_FILES].map((name) => join(root, name)).filter(existsSync),
+      ...projectFiles(root),
+    ].sort(),
+  }
+}
+
 function assertInside(root: string, path: string): string {
   const name = relative(root, path)
   if (!name || name.startsWith(`..${sep}`) || name === '..')
@@ -90,14 +104,7 @@ export function buildOfficePrivacyExport(
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(subjectRef)
   )
     throw new Error('privacy subject must be a canonical UUID')
-  const root = resolve(userDataDir)
-  const metadata = lstatSync(root)
-  if (!metadata.isDirectory() || metadata.isSymbolicLink())
-    throw new Error('user data path must be a real directory')
-  const files = [
-    ...[...ROOT_FILES].map((name) => join(root, name)).filter(existsSync),
-    ...projectFiles(root),
-  ]
+  const { root, files } = discoverOfficePrivacyFiles(userDataDir)
   const records: Record<string, unknown> = {}
   let bytes = 0
   for (const file of files.sort()) {

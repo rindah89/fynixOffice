@@ -43,9 +43,9 @@ const controls: Record<string, Definition> = {
   'DG-03': {
     status: 'partially_effective',
     summary:
-      'A fail-closed access export covers Office-controlled settings, recent-file metadata, projects and AI chats with secret redaction and CyberAudit evidence; erasure and processing-purpose automation remain incomplete.',
-    evidence_refs: ['packages/governance/src/privacy.ts', 'packages/project-store', 'apps/office-server/src/ai-routes.ts'],
-    metrics: { privacy_access_export: true, secret_redaction: true, erasure_fulfillment: false },
+      'Fail-closed access export and legal-hold-aware erasure cover Office-controlled settings, recent-file metadata, projects and AI chats with digest-bound CyberAudit evidence; correction, restriction and objection remain incomplete.',
+    evidence_refs: ['packages/governance/src/privacy.ts', 'packages/governance/src/privacy-erasure.ts', 'packages/project-store', 'apps/office-server/src/ai-routes.ts'],
+    metrics: { privacy_access_export: true, secret_redaction: true, erasure_fulfillment: true, legal_hold_precedence: true },
   },
   'DG-04': {
     status: 'effective',

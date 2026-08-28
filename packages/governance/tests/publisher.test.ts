@@ -23,7 +23,7 @@ describe('Office governance publisher', () => {
       statement.payload.controls.find((control) => control.control_id === 'DG-03'),
     ).toMatchObject({
       status: 'partially_effective',
-      metrics: { privacy_access_export: true, secret_redaction: true, erasure_fulfillment: false },
+      metrics: { privacy_access_export: true, secret_redaction: true, erasure_fulfillment: true },
     })
     expect(
       statement.payload.controls.find((control) => control.control_id === 'DG-12')?.status,
