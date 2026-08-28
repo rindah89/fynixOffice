@@ -1,4 +1,4 @@
-import { createHmac, randomUUID } from 'node:crypto'
+import { createHash, createHmac, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 
 export {
@@ -15,6 +15,7 @@ export const controlIds = Array.from(
   { length: 12 },
   (_, index) => `DG-${String(index + 1).padStart(2, '0')}`,
 )
+export const reviewedEvidenceControlIds = ['DG-01', 'DG-04', 'DG-07', 'DG-08', 'DG-12'] as const
 
 type Status = 'effective' | 'partially_effective' | 'ineffective' | 'not_applicable' | 'unknown'
 type Definition = {
@@ -124,6 +125,29 @@ const controls: Record<string, Definition> = {
     evidence_refs: ['package.json', 'package-lock.json', 'tools'],
     metrics: { workspace_test_gate: true, high_severity_dependency_findings: 0 },
   },
+}
+
+export function buildOfficeControlEvidence(
+  controlId: typeof reviewedEvidenceControlIds[number],
+  observedAt = new Date(),
+) {
+  const definition = controls[controlId]
+  const material = JSON.stringify({
+    control_id: controlId, summary: definition.summary,
+    evidence_refs: definition.evidence_refs, metrics: definition.metrics,
+  })
+  const evidenceSha256 = createHash('sha256').update(material).digest('hex')
+  const bytes = Buffer.from(evidenceSha256.slice(0, 32), 'hex')
+  bytes[6] = (bytes[6]! & 0x0f) | 0x50
+  bytes[8] = (bytes[8]! & 0x3f) | 0x80
+  const hex = bytes.toString('hex')
+  const sourceEvidenceRef = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+  return {
+    control_id: controlId, source_evidence_ref: sourceEvidenceRef,
+    observed_at: observedAt.toISOString(),
+    evidence_ref: `urn:fynix:office:control-evidence:${sourceEvidenceRef}`,
+    evidence_sha256: evidenceSha256,
+  }
 }
 
 export function loadOfficeProcessorInventory(path: string): ProcessorInventoryEntry[] {
@@ -289,6 +313,22 @@ export async function synchronizeOfficeProcessorInventory(
     )
     if (!['processor', 'data_processor'].includes(receipt.resource_type ?? '') ||
       !receipt.resource_id) throw new Error('Cyber Audit returned an invalid processor receipt')
+    receipts.push(receipt)
+  }
+  return receipts
+}
+
+export async function synchronizeOfficeControlEvidence(
+  config: { endpoint: string; tenantId: string; webhookId: string; secret: string },
+  fetchImpl: typeof fetch = fetch,
+) {
+  const receipts: Array<{ outcome?: string; resource_type?: string; resource_id?: number }> = []
+  for (const controlId of reviewedEvidenceControlIds) {
+    const receipt = await publishOfficeControl(
+      config, 'control_evidence.record', buildOfficeControlEvidence(controlId), fetchImpl,
+    )
+    if (receipt.resource_type !== 'control_evidence' || !receipt.resource_id)
+      throw new Error(`Cyber Audit returned an invalid ${controlId} evidence receipt`)
     receipts.push(receipt)
   }
   return receipts

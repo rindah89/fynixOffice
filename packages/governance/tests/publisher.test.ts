@@ -4,10 +4,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   buildOfficeStatement,
+  buildOfficeControlEvidence,
   controlIds,
   loadOfficeProcessorInventory,
   publishOfficeControl,
   publishOfficeStatement,
+  reviewedEvidenceControlIds,
+  synchronizeOfficeControlEvidence,
   synchronizeOfficeProcessorInventory,
 } from '../src/index.js'
 
@@ -70,6 +73,27 @@ describe('Office governance publisher', () => {
         secret: 'x'.repeat(32),
       }),
     ).rejects.toThrow(/HTTPS/)
+  })
+
+  it('synchronizes stable evidence for every currently effective general control', async () => {
+    const first = buildOfficeControlEvidence('DG-12', new Date('2026-08-28T12:00:00Z'))
+    const retry = buildOfficeControlEvidence('DG-12', new Date('2026-08-29T12:00:00Z'))
+    expect(first.source_evidence_ref).toBe(retry.source_evidence_ref)
+    expect(first.evidence_sha256).toBe(retry.evidence_sha256)
+    const commands: string[] = []
+    const upstream = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {
+      if (typeof init?.body !== 'string') throw new Error('Expected JSON body')
+      commands.push((JSON.parse(init.body) as { command: string }).command)
+      return new Response(
+        JSON.stringify({ outcome: 'recorded', resource_type: 'control_evidence', resource_id: commands.length }),
+        { status: 201, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    await expect(synchronizeOfficeControlEvidence({
+      endpoint: 'https://cyberaudit.example/controls', tenantId: 'tenant',
+      webhookId: 'webhook', secret: 'x'.repeat(32),
+    }, upstream)).resolves.toHaveLength(reviewedEvidenceControlIds.length)
+    expect(commands).toEqual(Array(reviewedEvidenceControlIds.length).fill('control_evidence.record'))
   })
 
   it('publishes signed governance control commands', async () => {
