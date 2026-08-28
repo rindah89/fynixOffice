@@ -62,3 +62,7 @@ npm run test -w @fynixoffice/governance
 In Cyber Audit, confirm that **Suite Data Governance** shows Office as current and review every generated exception for an owner and due date.
 
 fynixOffice edits local user files and does not centrally own their retention schedule, legal holds, privacy register, processor inventory, or backup service. Those controls must remain `partially_effective` until an owning service implements and evidences them. Local safe-save and crash recovery are not organization backup or restore-drill proof.
+
+## Getting help or reporting a governance issue
+
+Contact the workspace or document owner for classification, privacy fulfilment, retention, disposition, or legal-hold questions. Contact the CyberAudit assurance owner for stale evidence, pending independent review, an open exception, or a dashboard discrepancy. Use the security-incident channel when a file or local Office profile may have been exposed or altered. Include the application, control ID, opaque document or request ID, UTC time, and CyberAudit exception ID when available. Never include file contents, personal data, credentials, local paths, raw exports, or signed evidence links in a help request.
